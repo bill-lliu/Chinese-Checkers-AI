@@ -145,19 +145,7 @@ import java.awt.GridLayout;
 
 //main class for the server
 public class ChineseCheckersAI {
-  
-  //stuff we dont need
-	/*
-	private JButton sendButton, clearButton;
-	private JTextField typeField;
-	private JTextArea msgArea;  
-	private JPanel southPanel;
-	*/
-	private Socket mySocket; //socket for connection
-	private BufferedReader input; //reader for network stream
-	private PrintWriter output;  //printwriter for network output
-	private boolean running = true; //thread status via boolean
-  
+	
 	//GUI 
 	JFrame mainFrame;
 	JPanel startPanel;
@@ -165,15 +153,16 @@ public class ChineseCheckersAI {
 	//Server 
 	private Socket mySocket; //socket for connection
 	private BufferedReader input; //reader for network stream
-	private PrintWriter output;  //printwriter for network output
+	private PrintWriter output;  //print writer for network output
 	
-	
+	//if we were to thread
 	private boolean running = true; //thread status via boolean
 	
 	public static void main(String [] args) {
 	    new ChineseCheckersAI().setUp();
 	}
 	
+	//starts server connection and creates socket
 	private void connectToServer(String ip, int port) {
 		try {
 			mySocket = new Socket(ip, port);	
@@ -194,7 +183,7 @@ public class ChineseCheckersAI {
 		mainFrame.setSize(400,400);
 		
 		//initiating game items
-		int[][] gameBoard = new int[25][17];//size of triangle [row][column]
+		int[][] gameBoard = new int[25][17];//size of triangle is [row][column]
 		
 		startPanel = new JPanel();
 		startPanel.setVisible(true);
