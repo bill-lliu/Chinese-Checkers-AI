@@ -39,77 +39,93 @@ public class ChineseCheckersAI {
 //  private JPanel southPanel;
   
   
-  //GUI 
-  JFrame mainFrame;
-  JPanel startPanel;
-  
-  //Server 
-  private Socket mySocket; //socket for connection
-  private BufferedReader input; //reader for network stream
-  private PrintWriter output;  //printwriter for network output
-  
-  
-  private boolean running = true; //thread status via boolean
-  
-  public static void main(String [] args) {
-    ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
-  }
-  
-  ChineseCheckersAI(){
-    setUp();
-  }
-  
-  private void connectToServer(String ip, int port) {
-    try {
-      mySocket = new Socket(ip, port);
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-  
-  private void setUp(){
-    mainFrame = new JFrame("Chinese Checkers AI");
-    mainFrame.setVisible(true);
-    mainFrame.setSize(400,400);
-    
-    startPanel = new JPanel();
-    startPanel.setVisible(true);
-    JLabel serverIPLabel = new JLabel("Enter the IP Address");
-    JTextField serverIPTextField = new JTextField(20);
-    JLabel portLabel = new JLabel("Enter the port");
-    JTextField portTextField = new JTextField(10);
-    JButton okayButton = new JButton("Okay");
-    okayButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent actionEvent) {
-        try {
-          String ip = serverIPTextField.getText();
-          int port = Integer.parseInt(portTextField.getText());
-          if (ip != null && !"".equals(ip)) {
-            connectToServer(ip, port);
-          } else {
-            System.out.println("IP Address is blank!");
-          }
-        } catch (NumberFormatException e) {
-          System.out.println("Not a valid port!");
-          e.printStackTrace();
-        } 
-      }
-    });
-    
-    startPanel.add(serverIPLabel);
-    startPanel.add(serverIPTextField);
-    startPanel.add(portLabel);
-    startPanel.add(portTextField);
-    startPanel.add(okayButton);
-    mainFrame.add(startPanel);
-    repaintFrame();
-  }
-  
-  private void repaintFrame() {
-    mainFrame.setVisible(true);
-    mainFrame.repaint();
-  }
+	//GUI 
+	JFrame mainFrame;
+	JPanel startPanel;
+	
+	//Server 
+	private Socket mySocket; //socket for connection
+	private BufferedReader input; //reader for network stream
+	private PrintWriter output;  //printwriter for network output
+	
+	
+	private boolean running = true; //thread status via boolean
+	
+	public static void main(String [] args) {
+		ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
+	}
+	
+	ChineseCheckersAI(){
+		setUp();
+	}
+	
+	private void connectToServer(String ip, int port) {
+		try {
+			mySocket = new Socket(ip, port);	
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*setUp
+	 *initiating function to start up the server
+	 */
+	private void setUp(){
+		//initiating display items
+		mainFrame = new JFrame("Chinese Checkers AI");
+		mainFrame.setVisible(true);
+		mainFrame.setSize(400,400);
+		
+		//initiating game items
+		int[][] gameBoard = new int[30][30];//FIX THESE NUMBERS
+		
+		startPanel = new JPanel();
+		startPanel.setVisible(true);
+		JLabel serverIPLabel = new JLabel("Enter the IP Address");
+		JTextField serverIPTextField = new JTextField(20);
+		JLabel portLabel = new JLabel("Enter the port");
+		JTextField portTextField = new JTextField(10);
+		JButton okayButton = new JButton("Okay");
+		okayButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				try {
+					String ip = serverIPTextField.getText();
+					int port = Integer.parseInt(portTextField.getText());
+					if (ip != null && !"".equals(ip)) {
+						connectToServer(ip, port);
+					} else {
+						System.out.println("IP Address is blank!");
+					}
+				} catch (NumberFormatException e) {
+					System.out.println("Not a valid port!");
+					e.printStackTrace();
+				} 
+			}
+		});
+		
+		startPanel.add(serverIPLabel);
+		startPanel.add(serverIPTextField);
+		startPanel.add(portLabel);
+		startPanel.add(portTextField);
+		startPanel.add(okayButton);
+		mainFrame.add(startPanel);
+		repaintFrame();
+	}
+	
+	private void repaintFrame() {
+		mainFrame.setVisible(true);
+		mainFrame.repaint();
+	}
+	
+	
+	/*play
+	 *main function to run when it is now our turn
+	 */
+	public String play() {
+		return bestMove(gameTable);
+		
+	}
 }
