@@ -40,9 +40,9 @@ public class ChineseCheckersAI {
   
   
 	//GUI 
-	JFrame mainFrame;
-	JPanel startPanel;
-	
+	private JFrame mainFrame;
+	private JPanel startPanel;
+
 	//Server 
 	private Socket mySocket; //socket for connection
 	private BufferedReader input; //reader for network stream
@@ -50,6 +50,11 @@ public class ChineseCheckersAI {
 	
 	
 	private boolean running = true; //thread status via boolean
+
+	//Moving + Scoring
+	private int bestScore;
+	final int PHASE_ONE = 0;
+	final int PHASE_TWO = 1;
 	
 	public static void main(String [] args) {
 		ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
@@ -124,8 +129,72 @@ public class ChineseCheckersAI {
 	/*play
 	 *main function to run when it is now our turn
 	 */
-	public String play() {
-		return bestMove(gameTable);
-		
+//	public String play() {
+//		return bestMove(gameTable);
+//
+//	}
+
+	public int move(int r, int c, int phase) {
+		if (phase == PHASE_ONE) {
+			if (isLegalMove(r-1, c)) {
+				move(r-1, c, PHASE_TWO);
+			}
+			if (isLegalMove(r-1, c-1)) {
+				move(r-1,c-1, PHASE_TWO);
+			}
+			if (isLegalMove(r, c-1)) {
+				move(r, c-1, PHASE_TWO);
+			}
+			if (isLegalMove(r+1, c)) {
+				move(r+1, c, PHASE_TWO);
+			}
+			if (isLegalMove(r+1, c+1)) {
+				move(r+1, c+1, PHASE_TWO);
+			}
+			if (isLegalMove(r, c+1)) {
+				move(r, c+1, PHASE_TWO);
+			}
+		}
+		if (phase == PHASE_TWO|| phase == PHASE_ONE) {
+			//If it is an illegal move 1 adjacent, then it is either out of bounds or has a piece there
+			//Check the jump piece if it is a legal move because 
+			if (!isLegalMove(r-1, c)) {
+				if (isLegalMove(r-2, c)) {
+					move(r-2, c, PHASE_TWO);
+				}
+			}
+			if (!isLegalMove(r-1, c-1)) {
+				if (isLegalMove(r-2, c-2)) {
+					move(r-2, c-2, PHASE_TWO);
+				}
+			}
+			if (!isLegalMove(r, c-1)) {
+				if (isLegalMove(r, c-2)) {
+					move(r, c-2, PHASE_TWO);
+				}
+			}
+			if (!isLegalMove(r+1, c)) {
+				if (isLegalMove(r+2, c)) {
+					move(r+2, c, PHASE_TWO);
+				}
+			}
+			if (!isLegalMove(r+1, c+1)) {
+				if (isLegalMove(r+2, c+2)) {
+					move(r+2, c+2, PHASE_TWO);
+				}
+			}
+			if (!isLegalMove(r, c+1)) {
+				if (isLegalMove(r, c+2)) {
+					move(r, c+2, PHASE_TWO);
+				}
+			}
+
+		} else {
+			//lol fuck
+		}
+	}
+
+	public boolean isLegalMove(int r, int c){
+		return false;
 	}
 }
