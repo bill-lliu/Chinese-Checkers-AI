@@ -24,19 +24,19 @@ public class ChineseCheckersAI {
 	
 	//stuff we dont need
 	private JButton sendButton, clearButton;
-	  private JTextField typeField;
-	  private JTextArea msgArea;  
-	  private JPanel southPanel;
-	  private Socket mySocket; //socket for connection
-	  private BufferedReader input; //reader for network stream
-	  private PrintWriter output;  //printwriter for network output
-	  private boolean running = true; //thread status via boolean
+	private JTextField typeField;
+	private JTextArea msgArea;  
+	private JPanel southPanel;
+	private Socket mySocket; //socket for connection
+	private BufferedReader input; //reader for network stream
+	private PrintWriter output;  //printwriter for network output
+	//private boolean running = true; //thread status via boolean
 	
 	public static void main(String [] args) {
 		//start the boie
 	}
 	
-	ChineseCheckersAI(){
+	ChineseCheckersAI() {
 		
 	}
 	
