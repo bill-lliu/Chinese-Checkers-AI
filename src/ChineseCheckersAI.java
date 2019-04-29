@@ -145,7 +145,9 @@ public class ChineseCheckersAI {
             	if ("OK".equalsIgnoreCase(msg)) {
 					output.println("CHOOSENAME " + username);
 					output.flush();
-					msg = readMessagesFromServer();
+					do {
+						msg = readMessagesFromServer();
+					} while (msg == null);
 					if (msg != null) {
 						if ("OK".equalsIgnoreCase((msg))) {
 							//we gucci here
@@ -185,6 +187,7 @@ public class ChineseCheckersAI {
 				if (input.ready()) { //check for an incoming messge
 					String msg;
 					msg = input.readLine(); //read the message
+					System.out.println(msg);
 					return msg;
 				} else {
 					return null;
