@@ -48,6 +48,8 @@ public class ChineseCheckersAI {
   //Game portions
   private int[][] gameBoard;
   private int[][] gamePieces;
+  private int[][] start;
+  private int[][] end;
   
   //Moving + Scoring
   private int[] bestScore; //0 is displacement, 1 is priority
@@ -119,6 +121,8 @@ public class ChineseCheckersAI {
     startPanel.add(okayButton);
     mainFrame.add(startPanel);
     repaintFrame();
+    hardCodeStart();
+    hardCodeEnd();
   }
   
   private void repaintFrame() {
@@ -140,12 +144,17 @@ public class ChineseCheckersAI {
       String username = nameTextField.getText();
       output.println("JOINROOM " + room);
       output.flush();
-      String msg = readMessagesFromServer();
+      String msg;
+      do {
+        msg = readMessagesFromServer();
+      } while (msg == null);
       if (msg != null) {
         if ("OK".equalsIgnoreCase(msg)) {
           output.println("CHOOSENAME " + username);
           output.flush();
-          msg = readMessagesFromServer();
+          do {
+            msg = readMessagesFromServer();
+          } while (msg == null);
           if (msg != null) {
             if ("OK".equalsIgnoreCase((msg))) {
               //we gucci here
@@ -370,6 +379,54 @@ public class ChineseCheckersAI {
     } else {
       return false;
     }
+  }
+  
+  private void hardCodeStart() {
+    start = new int[10][2];
+    start[0][0] = 9;
+    start[0][1] = 5;
+    start[1][0] = 10;
+    start[1][1] = 5;
+    start[2][0] = 10;
+    start[2][1] = 6;
+    start[3][0] = 11;
+    start[3][1] = 5;
+    start[4][0] = 11;
+    start[4][1] = 6;
+    start[5][0] = 11;
+    start[5][1] = 7;
+    start[6][0] = 12;
+    start[6][1] = 5;
+    start[7][0] = 12;
+    start[7][1] = 6;
+    start[8][0] = 12;
+    start[8][1] = 7;
+    start[9][0] = 12;
+    start[9][1] = 8;
+  }
+  
+  private void hardCodeEnd() {
+    start = new int[10][2];
+    start[0][0] = 22;
+    start[0][1] = 10;
+    start[1][0] = 22;
+    start[1][1] = 11;
+    start[2][0] = 22;
+    start[2][1] = 12;
+    start[3][0] = 22;
+    start[3][1] = 13;
+    start[4][0] = 23;
+    start[4][1] = 11;
+    start[5][0] = 23;
+    start[5][1] = 12;
+    start[6][0] = 23;
+    start[6][1] = 13;
+    start[7][0] = 24;
+    start[7][1] = 12;
+    start[8][0] = 24;
+    start[8][1] = 13;
+    start[9][0] = 25;
+    start[9][1] = 13;
   }
 }
 

@@ -1,4 +1,3 @@
 /bin/
-.java~
-.class
+*.class
 *.java~
