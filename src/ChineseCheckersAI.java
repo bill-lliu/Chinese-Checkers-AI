@@ -215,24 +215,6 @@ public class ChineseCheckersAI {
     
   }
   
-  /** play
-    *main function to run when it is now our turn
-    */
-  private void play() {
-    for (int i=0; i<10; i++) {
-      move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
-    }
-    moveList.clear();
-    moveSent = "MOVE ";
-    StringBuilder s = new StringBuilder(moveSent);
-    for (int i=0; i<bestMoveList.size(); i++) {
-      Integer[] move = bestMoveList.get(i);
-      String temp = "(" + move[0] + ", " + move[1] + ")";
-      s.append(temp);
-    }
-    moveSent = s.toString();
-  }
-  
   private void runGameLoop(){
     //This is where we do the looping waiting for stuff
     while (running) {
@@ -262,6 +244,28 @@ public class ChineseCheckersAI {
     }
   }
   
+  
+  
+  /** play
+   *main function to run when it is now our turn
+   */
+ private void play() {
+   for (int i=0; i<10; i++) {
+     move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
+   }
+   moveList.clear();
+   moveSent = "MOVE ";
+   StringBuilder s = new StringBuilder(moveSent);
+   for (int i=0; i<bestMoveList.size(); i++) {
+     Integer[] move = bestMoveList.get(i);
+     String temp = "(" + move[0] + ", " + move[1] + ")";
+     s.append(temp);
+   }
+   moveSent = s.toString();
+ }
+  
+ 
+ 
   private void resetBoard(String[] msgSplit) {
     gameBoard = new int[30][30];
     for (int i=3; i<msgSplit.length; i++) {
@@ -341,6 +345,7 @@ public class ChineseCheckersAI {
       }
       
     }
+    
     //Want to call scoring here!
     //int score = score(shit);
     //int priority shit //will figure out later
@@ -360,6 +365,14 @@ public class ChineseCheckersAI {
     }
     moveList.remove(moveList.size()-1);
   }
+  
+  
+  
+  private int calcDistance(int[] start, int[] end) {
+	  return 0;
+  }
+  
+  
   
   private boolean isLegalMove(int r, int c){
     if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
