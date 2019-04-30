@@ -371,14 +371,20 @@ public class ChineseCheckersAI {
         double score = 0;
         Integer[] start = moves.get(0);
         Integer[] end = moves.get(moves.size() - 1);
-        score = distance(start, end);
+        score = rawDist(start, end);
         return score;
     }
     
-    private double distance(Integer[] start, Integer[] end) {
+    private double rawDist(Integer[] start, Integer[] end) {
         double distance = 0;
         
         return distance;
+    }
+    
+    private double countDist(Integer[] start, Integer[] end) {
+    	double distance = 0;
+    	
+    	return distance;
     }
     
     private boolean isLegalMove(int r, int c){
