@@ -421,27 +421,27 @@ public class ChineseCheckersAI {
   }
   
   private void hardCodeEnd() {
-    start = new int[10][2];
-    start[0][0] = 22;
-    start[0][1] = 10;
-    start[1][0] = 22;
-    start[1][1] = 11;
-    start[2][0] = 22;
-    start[2][1] = 12;
-    start[3][0] = 22;
-    start[3][1] = 13;
-    start[4][0] = 23;
-    start[4][1] = 11;
-    start[5][0] = 23;
-    start[5][1] = 12;
-    start[6][0] = 23;
-    start[6][1] = 13;
-    start[7][0] = 24;
-    start[7][1] = 12;
-    start[8][0] = 24;
-    start[8][1] = 13;
-    start[9][0] = 25;
-    start[9][1] = 13;
+    end = new int[10][2];
+    end[0][0] = 22;
+    end[0][1] = 10;
+    end[1][0] = 22;
+    end[1][1] = 11;
+    end[2][0] = 22;
+    end[2][1] = 12;
+    end[3][0] = 22;
+    end[3][1] = 13;
+    end[4][0] = 23;
+    end[4][1] = 11;
+    end[5][0] = 23;
+    end[5][1] = 12;
+    end[6][0] = 23;
+    end[6][1] = 13;
+    end[7][0] = 24;
+    end[7][1] = 12;
+    end[8][0] = 24;
+    end[8][1] = 13;
+    end[9][0] = 25;
+    end[9][1] = 13;
   }
 }
 
