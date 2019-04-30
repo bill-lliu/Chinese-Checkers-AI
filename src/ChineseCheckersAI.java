@@ -381,10 +381,14 @@ public class ChineseCheckersAI {
         return distance;
     }
     
+    //distance calculator by counting moves taken to reach goal
     private double countDist(Integer[] start, Integer[] end) {
-    	double tmpx = end[0] - start[0];
-    	double tmpy = end[1] - start[1];
-    	return (tmpx + tmpy);
+    	double ycount = end[1] - start[1];
+    	
+    	double tmpx = start[1] + ycount/2;
+    	double xcount = Math.abs(tmpx - end[1]);
+    	
+    	return (xcount + ycount);
     }
     
     private boolean isLegalMove(int r, int c){
