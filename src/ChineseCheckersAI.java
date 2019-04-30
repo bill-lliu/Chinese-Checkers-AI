@@ -346,19 +346,20 @@ public class ChineseCheckersAI {
       
     }
     
-    //Want to call scoring here!
-    //int score = score(shit);
-    //int priority shit //will figure out later
+    //calls scoring to find best distance
+    for () {
+    	
+    }
     
     //If the score is better, changes the stuff
-    /*if (score > bestScore[0] || (score == bestScore[0] && priority > bestScore[1])) {
-     copy the arraylist lol
-     bestMoveList.clear();
-     for (int i=0; i<moveList.size(); i++) {
-     bestMoveList.add(moveList.get(i));
-     }
-     }
-     */
+    if (score > bestScore[0] || (score == bestScore[0] && priority > bestScore[1])) {
+      
+      bestMoveList.clear();
+      for (int i=0; i<moveList.size(); i++) {
+        bestMoveList.add(moveList.get(i));
+      }
+    }
+    
     //After scoring is done, board removes current position
     if (gameBoard[r][c] != 1) {
       gameBoard[r][c] = 0;
@@ -366,10 +367,13 @@ public class ChineseCheckersAI {
     moveList.remove(moveList.size()-1);
   }
   
+  //********Functions used for moving*********
   
-  
-  private int calcDistance(int[] start, int[] end) {
-	  return 0;
+  /*calcDist
+   *calculates distance between two points by counting minimum moves taken to get there
+   */
+  private int calcDist(int[] start, int[] end) {
+	  return 25 - start[0];
   }
   
   
