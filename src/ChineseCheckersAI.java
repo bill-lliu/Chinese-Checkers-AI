@@ -382,9 +382,9 @@ public class ChineseCheckersAI {
     }
     
     private double countDist(Integer[] start, Integer[] end) {
-    	double distance = 0;
-    	
-    	return distance;
+    	double tmpx = end[0] - start[0];
+    	double tmpy = end[1] - start[1];
+    	return (tmpx + tmpy);
     }
     
     private boolean isLegalMove(int r, int c){
