@@ -342,19 +342,20 @@ public class ChineseCheckersAI {
       }
       
     }
-    //Want to call scoring here!
-    //int score = score(shit);
-    //int priority shit //will figure out later
     
-    //If the score is better, changes the stuff
-    /*if (score > bestScore[0] || (score == bestScore[0] && priority > bestScore[1])) {
-     copy the arraylist lol
-     bestMoveList.clear();
-     for (int i=0; i<moveList.size(); i++) {
-     bestMoveList.add(moveList.get(i));
-     }
-     }
-     */
+    //Want to call scoring here!
+      //int score = score(shit);
+      //int priority shit //will figure out later
+    
+      //If the score is better, changes the stuff
+      /*if (score > bestScore[0] || (score == bestScore[0] && priority > bestScore[1])) {
+        copy the arraylist lol
+        bestMoveList.clear();
+        for (int i=0; i<moveList.size(); i++) {
+          bestMoveList.add(moveList.get(i));
+        }
+      }
+    */
     //After scoring is done, board removes current position
     if (gameBoard[r][c] != 1) {
       gameBoard[r][c] = 0;
