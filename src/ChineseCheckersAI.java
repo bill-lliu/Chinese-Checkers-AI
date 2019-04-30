@@ -24,33 +24,33 @@ import java.util.ArrayList;
 
 //main class for the server
 public class ChineseCheckersAI {
-    
+
     //stuff we dont need
 //  private JButton sendButton, clearButton;
 //  private JTextField typeField;
-//  private JTextArea msgArea;  
+//  private JTextArea msgArea;
 //  private JPanel southPanel;
-    
-    
-    //GUI 
+
+
+    //GUI
     private JFrame mainFrame;
     private JPanel startPanel;
     private JPanel joinPanel;
-    
-    //Server 
+
+    //Server
     private Socket mySocket; //socket for connection
     private BufferedReader input; //reader for network stream
     private PrintWriter output;  //printwriter for network output
-    
-    
+
+
     private boolean running = true; //thread status via boolean
-    
+
     //Game portions
     private int[][] gameBoard;
     private int[][] gamePieces;
     private int[][] start;
     private int[][] end;
-    
+
     //Moving + Scoring
     private int[] bestScore; //0 is displacement, 1 is priority
     private ArrayList<Integer[]> bestMoveList;
@@ -58,15 +58,15 @@ public class ChineseCheckersAI {
     private final int PHASE_TWO = 1;
     private String moveSent;
     private ArrayList<Integer[]> moveList;
-    
+
     public static void main(String [] args) {
         ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
     }
-    
+
     ChineseCheckersAI(){
         setUp();
     }
-    
+
     private void connectToServer(String ip, int port) {
         try {
             mySocket = new Socket(ip, port);
@@ -78,7 +78,7 @@ public class ChineseCheckersAI {
             e.printStackTrace();
         }
     }
-    
+
     /*setUp
      *initiating function to start up the server
      */
@@ -87,11 +87,11 @@ public class ChineseCheckersAI {
         mainFrame = new JFrame("Chinese Checkers AI");
         mainFrame.setVisible(true);
         mainFrame.setSize(400,400);
-        
+
         //initiating game items
         //gameBoard = new int[30][30];//FIX THESE NUMBERS
         gamePieces = new int[10][2];//XY of our pieces (first index is piece number, second index is r or c)
-        
+
         startPanel = new JPanel();
         startPanel.setVisible(true);
         JLabel serverIPLabel = new JLabel("Enter the IP Address");
@@ -113,7 +113,7 @@ public class ChineseCheckersAI {
                 e.printStackTrace();
             }
         });
-        
+
         startPanel.add(serverIPLabel);
         startPanel.add(serverIPTextField);
         startPanel.add(portLabel);
@@ -124,16 +124,16 @@ public class ChineseCheckersAI {
         hardCodeStart();
         hardCodeEnd();
     }
-    
+
     private void repaintFrame() {
         mainFrame.setVisible(true);
         mainFrame.repaint();
     }
-    
+
     private void joinRoom() {
         joinPanel = new JPanel();
         joinPanel.setVisible(true);
-        
+
         JLabel roomLabel = new JLabel("Enter room name");
         JTextField roomTextField = new JTextField(20);
         JLabel nameLabel = new JLabel("Enter username");
@@ -162,7 +162,6 @@ public class ChineseCheckersAI {
                         } else {
                             System.out.println(msg);
                         }
-                        <<<<<<< HEAD
                     } else {
                             System.out.println("There was an error somewhere");
                         }
@@ -172,9 +171,9 @@ public class ChineseCheckersAI {
             } else {
                 System.out.println("There was an error somewhere");
             }
-            
+
         });
-        
+
         joinPanel.add(roomLabel);
         joinPanel.add(roomTextField);
         joinPanel.add(nameLabel);
@@ -182,12 +181,12 @@ public class ChineseCheckersAI {
         joinPanel.add(okayButton);
         mainFrame.remove(startPanel);
         mainFrame.add(joinPanel);
-        
+
         bestMoveList = new ArrayList<>();
         moveList = new ArrayList<>();
         repaintFrame();
     }
-    
+
     private String readMessagesFromServer() {
         //We're going to have to change this later
         //while (running) {  // loop unit a message is received
@@ -213,9 +212,9 @@ public class ChineseCheckersAI {
 //  } catch (Exception e) {
 //   System.out.println("Failed to close socket");
 //  }
-        
+
     }
-    
+
     /** play
       *main function to run when it is now our turn
       */
@@ -233,7 +232,7 @@ public class ChineseCheckersAI {
         }
         moveSent = s.toString();
     }
-    
+
     private void runGameLoop(){
         //This is where we do the looping waiting for stuff
         while (running) {
@@ -262,7 +261,7 @@ public class ChineseCheckersAI {
             }
         }
     }
-    
+
     private void resetBoard(String[] msgSplit) {
         gameBoard = new int[30][30];
         for (int i=3; i<msgSplit.length; i++) {
@@ -278,7 +277,7 @@ public class ChineseCheckersAI {
             }
         }
     }
-    
+
     private void move(int r, int c, int phase) {
         if (gameBoard[r][c] != 1) {
             gameBoard[r][c] = 2;
@@ -309,7 +308,7 @@ public class ChineseCheckersAI {
         }
         if (phase == PHASE_TWO || phase == PHASE_ONE) {
             //If it is an illegal move 1 adjacent, then it is either out of bounds or has a piece there
-            //Check the jump piece if it is a legal move because 
+            //Check the jump piece if it is a legal move because
             if (!isLegalMove(r-1, c)) {
                 if (isLegalMove(r-2, c)) {
                     move(r-2, c, PHASE_TWO);
@@ -340,13 +339,13 @@ public class ChineseCheckersAI {
                     move(r, c+2, PHASE_TWO);
                 }
             }
-            
+
         }
-        
+
         //Want to call scoring here!
         //int score = score(shit);
         //int priority shit //will figure out later
-        
+
         //If the score is better, changes the stuff
         /*if (score > bestScore[0] || (score == bestScore[0] && priority > bestScore[1])) {
          copy the arraylist lol
@@ -362,35 +361,35 @@ public class ChineseCheckersAI {
         }
         moveList.remove(moveList.size()-1);
     }
-    
-    
-    
+
+
+
     //****************Methods for playing the game****************
-    
+
     private double score(ArrayList<Integer[]> moves) {
         double score = 0;
         Integer[] start = moves.get(0);
         Integer[] end = moves.get(moves.size() - 1);
-        score = rawDist(start, end);
+        score = distance(start, end);
         return score;
     }
-    
-    private double rawDist(Integer[] start, Integer[] end) {
+
+    private double distance(Integer[] start, Integer[] end) {
         double distance = 0;
-        
+
         return distance;
     }
-    
+
     //distance calculator by counting moves taken to reach goal
     private double countDist(Integer[] start, Integer[] end) {
     	double ycount = end[1] - start[1];
-    	
+
     	double tmpx = start[1] + ycount/2;
     	double xcount = Math.abs(tmpx - end[1]);
-    	
+
     	return (xcount + ycount);
     }
-    
+
     private boolean isLegalMove(int r, int c){
         if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
             //Visited before or has a piece on it
@@ -410,7 +409,7 @@ public class ChineseCheckersAI {
             return false;
         }
     }
-    
+
     private void hardCodeStart() {
         start = new int[10][2];
         start[0][0] = 9;
@@ -434,7 +433,7 @@ public class ChineseCheckersAI {
         start[9][0] = 12;
         start[9][1] = 8;
     }
-    
+
     private void hardCodeEnd() {
         end = new int[10][2];
         end[0][0] = 22;
@@ -459,4 +458,3 @@ public class ChineseCheckersAI {
         end[9][1] = 13;
     }
 }
-
