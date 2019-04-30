@@ -368,18 +368,18 @@ public class ChineseCheckersAI {
   //****************Methods for playing the game****************
   
   private double score(ArrayList<Integer[]> moves) {
-  double score = 0;
-  Integer[] start = moves.get(0);
-  Integer[] end = moves.get(moves.size() - 1);
-  score = distance(start, end);
-  return score;
- }
+    double score = 0;
+    Integer[] start = moves.get(0);
+    Integer[] end = moves.get(moves.size() - 1);
+    score = distance(start, end);
+    return score;
+  }
 
- private double distance(Integer[] start, Integer[] end) {
-  double distance = 0;
+  private double distance(Integer[] start, Integer[] end) {
+    double distance = 0;
 
-  return distance;
- }
+    return distance;
+  }
  
   private boolean isLegalMove(int r, int c){
     if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
