@@ -162,7 +162,6 @@ public class ChineseCheckersAI {
                         } else {
                             System.out.println(msg);
                         }
-                        <<<<<<< HEAD
                     } else {
                             System.out.println("There was an error somewhere");
                         }
@@ -379,6 +378,13 @@ public class ChineseCheckersAI {
         double distance = 0;
         
         return distance;
+    }
+    
+
+    private double countDist(Integer[] start, Integer[] end) {
+     double tmpx = end[0] - start[0];
+     double tmpy = end[1] - start[1];
+     return (tmpx + tmpy);
     }
     
     private boolean isLegalMove(int r, int c){
