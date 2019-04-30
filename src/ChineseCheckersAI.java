@@ -363,6 +363,10 @@ public class ChineseCheckersAI {
     moveList.remove(moveList.size()-1);
   }
   
+  
+  
+  //****************Methods for playing the game****************
+  
   private double score(ArrayList<Integer[]> moves) {
   double score = 0;
   Integer[] start = moves.get(0);
