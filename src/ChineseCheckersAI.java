@@ -14,7 +14,6 @@ import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-//import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,16 +21,11 @@ import javax.swing.JLabel;
 import java.util.ArrayList;
 
 
-//main class for the server
+/**
+ * ChineseCheckersAI
+ * Networking class assignment
+ */
 public class ChineseCheckersAI {
-
-    //stuff we dont need
-//  private JButton sendButton, clearButton;
-//  private JTextField typeField;
-//  private JTextArea msgArea;
-//  private JPanel southPanel;
-
-
     //GUI
     private JFrame mainFrame;
     private JPanel startPanel;
@@ -41,7 +35,6 @@ public class ChineseCheckersAI {
     private Socket mySocket; //socket for connection
     private BufferedReader input; //reader for network stream
     private PrintWriter output;  //printwriter for network output
-
 
     private boolean running = true; //thread status via boolean
 
@@ -56,25 +49,24 @@ public class ChineseCheckersAI {
     private ArrayList<Integer[]> bestMoveList;
     private final int PHASE_ONE = 0;
     private final int PHASE_TWO = 1;
+    private final int PHASE_THREE = 2;
     private String moveSent;
     private ArrayList<Integer[]> moveList;
 
-    //main function
+    //Main function
     public static void main(String [] args) {
         ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
     }
 
-    //class constructor
+    //Class constructor
     ChineseCheckersAI(){
         setUp();
-        //setUp() runs connectToServer()
-        //connectToServer() runs joinRoom()
-        //joinRoom() runs runGameLoop()
-        //runGameLoop() runs play()
     }
 
-    /*connectToServer
-     *function to create and set up a new socket to connect to the server
+    /** connectToServer
+     * Create and set up a new socket to connect to the server
+     * @param ip
+     * @param port
      */
     private void connectToServer(String ip, int port) {
         try {
@@ -88,8 +80,8 @@ public class ChineseCheckersAI {
         }
     }
 
-    /*setUp
-     *initiating function to start up the server
+    /** setUp
+     * Initiating function to start up the server
      */
     private void setUp(){
         //initiating display items
@@ -134,16 +126,16 @@ public class ChineseCheckersAI {
         hardCodeEnd();
     }
 
-    /*repaintFrame
-     *refreshes the display
+    /** repaintFrame
+     * Refreshes the display
      */
     private void repaintFrame() {
         mainFrame.setVisible(true);
         mainFrame.repaint();
     }
 
-    /*joinRoom
-     *talks to the server and joins the room with a name
+    /** joinRoom
+     * User UI to enter a room name and player name
      */
     private void joinRoom() {
         joinPanel = new JPanel();
@@ -203,12 +195,11 @@ public class ChineseCheckersAI {
     }
 
     
-    /*readMessageFromServer
-     *takes input from the server and uses it for a purpose
+    /** readMessageFromServer
+     * reads input
+     * @return String
      */
     private String readMessagesFromServer() {
-        //We're going to have to change this later
-        //while (running) {  // loop unit a message is received
         try {
             if (input.ready()) { //check for an incoming messge
                 String msg;
@@ -237,7 +228,7 @@ public class ChineseCheckersAI {
     
     
     /** play
-      *main function to run when it is now our turn
+      * Runs when it is now our turn
       */
     private void play() {
         for (int i=0; i<10; i++) {
@@ -255,8 +246,8 @@ public class ChineseCheckersAI {
     }
 
     
-    /*runGameLoop
-     *main game loop to continually wait for a message and responds
+    /** runGameLoop
+     * main game loop to continually wait for a message and responds
      */
     private void runGameLoop(){
         //This is where we do the looping waiting for stuff
@@ -288,8 +279,9 @@ public class ChineseCheckersAI {
     }
 
     
-    /*resetBoard
-     *function to refresh the board after each play
+    /** resetBoard
+     * Refresh the board after each play
+     * @param msgSplit String array of the message from the server
      */
     private void resetBoard(String[] msgSplit) {
         gameBoard = new int[30][30];
@@ -308,8 +300,8 @@ public class ChineseCheckersAI {
     }
 
     
-    /*move
-     *move function
+    /** move
+     * move function that also calls the score function after each move
      */
     private void move(int r, int c, int phase) {
         if (gameBoard[r][c] != 1) {
@@ -415,33 +407,33 @@ public class ChineseCheckersAI {
 
     //distance calculator by counting moves taken to reach goal
     private double countDist(Integer[] start, Integer[] end) {
-    	double yCount = Math.abs(end[0] - start[0]);//difference of rows = y distance
-    	double xCount = Math.abs(end[1] - start[1]);//difference of columns = x distance
-    	int starty = start[0];
-    	int startx = start[1];
-    	int xyCount =0;
-    	//checks where to count then counts diagonally
-    	if (end[0] >= starty && end[1] >= startx) {//end place is right and down of start
-    		while (starty != end[0] && startx != end[1]) {
-        		startx++;
-        		starty++;
-        		xyCount++;
-        	}
-    	} else {// (end[0] < starty && end[1] < startx) - end place is up and left of start place
-    		while (starty != end[0] && startx != end[1]) {
-        		startx--;
-        		starty--;
-        		xyCount++;
-        	}
-    	}
-    	//returns the lowest 2 counts for shortest distance between 2 moves
-    	if (xyCount >= yCount && xyCount >= xCount) {
-    		return (yCount + xCount);
-    	} else if (yCount >= xCount && yCount >= xyCount) {
-    		return (yCount + xyCount);
-    	} else { //(xCount >= xyCount && xCount >= yCount)
-    		return (xyCount + yCount);
-    	}
+     double yCount = Math.abs(end[0] - start[0]);//difference of rows = y distance
+     double xCount = Math.abs(end[1] - start[1]);//difference of columns = x distance
+     int starty = start[0];
+     int startx = start[1];
+     int xyCount =0;
+     //checks where to count then counts diagonally
+     if (end[0] >= starty && end[1] >= startx) {//end place is right and down of start
+      while (starty != end[0] && startx != end[1]) {
+          startx++;
+          starty++;
+          xyCount++;
+         }
+     } else {// (end[0] < starty && end[1] < startx) - end place is up and left of start place
+      while (starty != end[0] && startx != end[1]) {
+          startx--;
+          starty--;
+          xyCount++;
+         }
+     }
+     //returns the lowest 2 counts for shortest distance between 2 moves
+     if (xyCount >= yCount && xyCount >= xCount) {
+      return (yCount + xCount);
+     } else if (yCount >= xCount && yCount >= xyCount) {
+      return (yCount + xyCount);
+     } else { //(xCount >= xyCount && xCount >= yCount)
+      return (xyCount + yCount);
+     }
     }
 
     private boolean isLegalMove(int r, int c){
