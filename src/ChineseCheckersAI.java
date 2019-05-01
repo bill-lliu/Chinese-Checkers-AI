@@ -203,7 +203,7 @@ public class ChineseCheckersAI {
         try {
             if (input.ready()) { //check for an incoming messge
                 String msg;
-                msg = input.readLine(); //read the message
+                msg = input.readLine().trim(); //read the message
                 return msg;
             } else {
                 return null;
@@ -235,11 +235,11 @@ public class ChineseCheckersAI {
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
         }
         moveList.clear();
-        moveSent = "MOVE ";
+        moveSent = "MOVE";
         StringBuilder s = new StringBuilder(moveSent);
         for (int i=0; i<bestMoveList.size(); i++) {
             Integer[] move = bestMoveList.get(i);
-            String temp = "(" + move[0] + ", " + move[1] + ")";
+            String temp = " (" + move[0] + ", " + move[1] + ")";
             s.append(temp);
         }
         moveSent = s.toString();
@@ -313,22 +313,22 @@ public class ChineseCheckersAI {
         moveList.add(move);
         if (phase == PHASE_ONE) {
             if (isLegalMove(r-1, c)) {
-                move(r-1, c, PHASE_TWO);
+                move(r-1, c, PHASE_THREE);
             }
             if (isLegalMove(r-1, c-1)) {
-                move(r-1,c-1, PHASE_TWO);
+                move(r-1,c-1, PHASE_THREE);
             }
             if (isLegalMove(r, c-1)) {
-                move(r, c-1, PHASE_TWO);
+                move(r, c-1, PHASE_THREE);
             }
             if (isLegalMove(r+1, c)) {
-                move(r+1, c, PHASE_TWO);
+                move(r+1, c, PHASE_THREE);
             }
             if (isLegalMove(r+1, c+1)) {
-                move(r+1, c+1, PHASE_TWO);
+                move(r+1, c+1, PHASE_THREE);
             }
             if (isLegalMove(r, c+1)) {
-                move(r, c+1, PHASE_TWO);
+                move(r, c+1, PHASE_THREE);
             }
         }
         if (phase == PHASE_TWO || phase == PHASE_ONE) {
