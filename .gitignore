@@ -1,5 +1,8 @@
 /bin/
-.java~
-.class
+*.class
+*.java~
 *.xml
 *.iml
+*.java~
+/.metadata
+/.idea
