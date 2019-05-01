@@ -59,14 +59,23 @@ public class ChineseCheckersAI {
     private String moveSent;
     private ArrayList<Integer[]> moveList;
 
+    //main function
     public static void main(String [] args) {
         ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
     }
 
+    //class constructor
     ChineseCheckersAI(){
         setUp();
+        //setUp() runs connectToServer()
+        //connectToServer() runs joinRoom()
+        //joinRoom() runs runGameLoop()
+        //runGameLoop() runs play()
     }
 
+    /*connectToServer
+     *function to create and set up a new socket to connect to the server
+     */
     private void connectToServer(String ip, int port) {
         try {
             mySocket = new Socket(ip, port);
@@ -125,11 +134,17 @@ public class ChineseCheckersAI {
         hardCodeEnd();
     }
 
+    /*repaintFrame
+     *refreshes the display
+     */
     private void repaintFrame() {
         mainFrame.setVisible(true);
         mainFrame.repaint();
     }
 
+    /*joinRoom
+     *talks to the server and joins the room with a name
+     */
     private void joinRoom() {
         joinPanel = new JPanel();
         joinPanel.setVisible(true);
@@ -163,13 +178,13 @@ public class ChineseCheckersAI {
                             System.out.println(msg);
                         }
                     } else {
-                            System.out.println("There was an error somewhere");
+                            System.out.println("Message from server was null");
                         }
                 } else {
                     System.out.println(msg); //Server error message
                 }
             } else {
-                System.out.println("There was an error somewhere");
+                System.out.println("Message from server was null");
             }
 
         });
@@ -187,6 +202,10 @@ public class ChineseCheckersAI {
         repaintFrame();
     }
 
+    
+    /*readMessageFromServer
+     *takes input from the server and uses it for a purpose
+     */
     private String readMessagesFromServer() {
         //We're going to have to change this later
         //while (running) {  // loop unit a message is received
@@ -215,6 +234,8 @@ public class ChineseCheckersAI {
 
     }
 
+    
+    
     /** play
       *main function to run when it is now our turn
       */
@@ -233,11 +254,15 @@ public class ChineseCheckersAI {
         moveSent = s.toString();
     }
 
+    
+    /*runGameLoop
+     *main game loop to continually wait for a message and responds
+     */
     private void runGameLoop(){
         //This is where we do the looping waiting for stuff
         while (running) {
             try {
-                if (input.ready()) { //check for an incoming messge
+                if (input.ready()) { //check for an incoming message
                     String msg = readMessagesFromServer();
                     try {
                         if (msg.indexOf("BOARD") > 0) {
@@ -262,6 +287,10 @@ public class ChineseCheckersAI {
         }
     }
 
+    
+    /*resetBoard
+     *function to refresh the board after each play
+     */
     private void resetBoard(String[] msgSplit) {
         gameBoard = new int[30][30];
         for (int i=3; i<msgSplit.length; i++) {
@@ -278,6 +307,10 @@ public class ChineseCheckersAI {
         }
     }
 
+    
+    /*move
+     *move function
+     */
     private void move(int r, int c, int phase) {
         if (gameBoard[r][c] != 1) {
             gameBoard[r][c] = 2;
@@ -382,10 +415,26 @@ public class ChineseCheckersAI {
 
     //distance calculator by counting moves taken to reach goal
     private double countDist(Integer[] start, Integer[] end) {
-    	double yCount = end[1] - start[1];
-    	double xyCount = end[1] - start[1];
-    	double xCount = Math.abs(end[0] - start[0]);
-    	
+    	double yCount = Math.abs(end[0] - start[0]);//difference of rows = y distance
+    	double xCount = Math.abs(end[1] - start[1]);//difference of columns = x distance
+    	int starty = start[0];
+    	int startx = start[1];
+    	int xyCount =0;
+    	//checks where to count then counts diagonally
+    	if (end[0] >= starty && end[1] >= startx) {//end place is right and down of start
+    		while (starty != end[0] && startx != end[1]) {
+        		startx++;
+        		starty++;
+        		xyCount++;
+        	}
+    	} else {// (end[0] < starty && end[1] < startx) - end place is up and left of start place
+    		while (starty != end[0] && startx != end[1]) {
+        		startx--;
+        		starty--;
+        		xyCount++;
+        	}
+    	}
+    	//returns the lowest 2 counts for shortest distance between 2 moves
     	if (xyCount >= yCount && xyCount >= xCount) {
     		return (yCount + xCount);
     	} else if (yCount >= xCount && yCount >= xyCount) {
