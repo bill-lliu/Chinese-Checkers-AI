@@ -256,15 +256,15 @@ public class ChineseCheckersAI {
                 if (input.ready()) { //check for an incoming message
                     String msg = readMessagesFromServer();
                     try {
-                        if (msg.indexOf("BOARD") > 0) {
+                        if (msg.indexOf("BOARD") >= 0) {
                             String[] msgSplit = msg.split(" ");
                             resetBoard(msgSplit);
                             play();
                             output.println(moveSent);
                             output.flush();
-                        } else if (msg.indexOf("ERROR") > 0) {
+                        } else if (msg.indexOf("ERROR") >= 0) {
                             System.out.println("Uh oh");
-                        } else if (msg.indexOf("OK") > 0) {
+                        } else if (msg.indexOf("OK") >= 0) {
                             System.out.println("Move Successfully sent.");
                         }
                     } catch (NullPointerException e) {
