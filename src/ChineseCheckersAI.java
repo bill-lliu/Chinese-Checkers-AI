@@ -385,8 +385,14 @@ public class ChineseCheckersAI {
     	double yCount = end[1] - start[1];
     	double xyCount = end[1] - start[1];
     	double xCount = Math.abs(end[0] - start[0]);
-
-    	return 0;
+    	
+    	if (xyCount >= yCount && xyCount >= xCount) {
+    		return (yCount + xCount);
+    	} else if (yCount >= xCount && yCount >= xyCount) {
+    		return (yCount + xyCount);
+    	} else { //(xCount >= xyCount && xCount >= yCount)
+    		return (xyCount + yCount);
+    	}
     }
 
     private boolean isLegalMove(int r, int c){
