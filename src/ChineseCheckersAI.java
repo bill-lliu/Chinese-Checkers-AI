@@ -231,15 +231,17 @@ public class ChineseCheckersAI {
       * Runs when it is now our turn
       */
     private void play() {
+        bestMoveList.clear();
+        bestScore = {-1,-1,-1};
         for (int i=0; i<10; i++) {
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
+            moveList.clear();
         }
-        moveList.clear();
         moveSent = "MOVE";
         StringBuilder s = new StringBuilder(moveSent);
         for (int i=0; i<bestMoveList.size(); i++) {
             Integer[] move = bestMoveList.get(i);
-            String temp = " (" + move[0] + ", " + move[1] + ")";
+            String temp = " (" + move[0] + "," + move[1] + ")";
             s.append(temp);
         }
         moveSent = s.toString();
