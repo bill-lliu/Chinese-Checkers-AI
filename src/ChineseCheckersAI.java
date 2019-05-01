@@ -57,6 +57,7 @@ public class ChineseCheckersAI {
 	private ArrayList<Integer[]> bestMoveList;
 	private final int PHASE_ONE = 0;
 	private final int PHASE_TWO = 1;
+	private final int PHASE_THREE = 2;
 	private String moveSent;
 	private ArrayList<Integer[]> moveList;
 
@@ -221,6 +222,7 @@ public class ChineseCheckersAI {
 	 * main function to run when it is now our turn
 	 */
 	private void play() {
+		System.out.println("play");
 		bestMoveList.clear();
 		bestScore = new double[3];
 		for (int i = 0; i < 10; i++) {
@@ -228,14 +230,15 @@ public class ChineseCheckersAI {
 			moveList.clear();
 		}
 		moveList.clear();
-		moveSent = "MOVE ";
+		moveSent = "MOVE";
 		StringBuilder s = new StringBuilder(moveSent);
 		for (int i = 0; i < bestMoveList.size(); i++) {
 			Integer[] move = bestMoveList.get(i);
-			String temp = "(" + move[0] + ", " + move[1] + ")";
+			String temp = " (" + move[0] + "," + move[1] + ")";
 			s.append(temp);
 		}
 		moveSent = s.toString();
+		System.out.println(moveSent);
 	}
 
 	private void runGameLoop() {
@@ -245,15 +248,15 @@ public class ChineseCheckersAI {
 				if (input.ready()) { //check for an incoming messge
 					String msg = readMessagesFromServer();
 					try {
-						if (msg.indexOf("BOARD") > 0) {
+						if (msg.indexOf("BOARD") >= 0) {
 							String[] msgSplit = msg.split(" ");
 							resetBoard(msgSplit);
 							play();
 							output.println(moveSent);
 							output.flush();
-						} else if (msg.indexOf("ERROR") > 0) {
+						} else if (msg.indexOf("ERROR") >= 0) {
 							System.out.println("Uh oh");
-						} else if (msg.indexOf("OK") > 0) {
+						} else if (msg.indexOf("OK") >= 0) {
 							System.out.println("Move Successfully sent.");
 						}
 					} catch (NullPointerException e) {
@@ -293,22 +296,22 @@ public class ChineseCheckersAI {
 		moveList.add(move);
 		if (phase == PHASE_ONE) {
 			if (isLegalMove(r - 1, c)) {
-				move(r - 1, c, PHASE_TWO);
+				move(r - 1, c, PHASE_THREE);
 			}
 			if (isLegalMove(r - 1, c - 1)) {
-				move(r - 1, c - 1, PHASE_TWO);
+				move(r - 1, c - 1, PHASE_THREE);
 			}
 			if (isLegalMove(r, c - 1)) {
-				move(r, c - 1, PHASE_TWO);
+				move(r, c - 1, PHASE_THREE);
 			}
 			if (isLegalMove(r + 1, c)) {
-				move(r + 1, c, PHASE_TWO);
+				move(r + 1, c, PHASE_THREE);
 			}
 			if (isLegalMove(r + 1, c + 1)) {
-				move(r + 1, c + 1, PHASE_TWO);
+				move(r + 1, c + 1, PHASE_THREE);
 			}
 			if (isLegalMove(r, c + 1)) {
-				move(r, c + 1, PHASE_TWO);
+				move(r, c + 1, PHASE_THREE);
 			}
 		}
 		if (phase == PHASE_TWO || phase == PHASE_ONE) {
