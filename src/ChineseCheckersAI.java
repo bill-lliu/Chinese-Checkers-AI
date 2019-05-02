@@ -115,11 +115,17 @@ public class ChineseCheckersAI {
             }
         });
 
+        JButton defaultButton = new JButton("DEFAULT");
+        defaultButton.addActionListener(actionEvent -> {
+            connectToServer("localhost", 6666);
+        });
+
         startPanel.add(serverIPLabel);
         startPanel.add(serverIPTextField);
         startPanel.add(portLabel);
         startPanel.add(portTextField);
         startPanel.add(okayButton);
+        startPanel.add(defaultButton);
         mainFrame.add(startPanel);
         repaintFrame();
         hardCodeStart();
@@ -231,11 +237,11 @@ public class ChineseCheckersAI {
       * Runs when it is now our turn
       */
     private void play() {
-        bestMoveList.clear();
-        bestScore = {-1,-1,-1};
+        bestMoveList = new ArrayList<>();
+        bestScore = new int[]{-1, 10000, 10000};
         for (int i=0; i<10; i++) {
+            moveList = new ArrayList<>();
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
-            moveList.clear();
         }
         moveSent = "MOVE";
         StringBuilder s = new StringBuilder(moveSent);
@@ -259,13 +265,15 @@ public class ChineseCheckersAI {
                     String msg = readMessagesFromServer();
                     try {
                         if (msg.indexOf("BOARD") >= 0) {
+                            System.out.println(msg);
                             String[] msgSplit = msg.split(" ");
                             resetBoard(msgSplit);
                             play();
+                            System.out.println(moveSent);
                             output.println(moveSent);
                             output.flush();
                         } else if (msg.indexOf("ERROR") >= 0) {
-                            System.out.println("Uh oh");
+                            System.out.println(msg);
                         } else if (msg.indexOf("OK") >= 0) {
                             System.out.println("Move Successfully sent.");
                         }
@@ -287,6 +295,7 @@ public class ChineseCheckersAI {
      */
     private void resetBoard(String[] msgSplit) {
         gameBoard = new int[30][30];
+        gamePieces = new int[10][2];
         for (int i=3; i<msgSplit.length; i++) {
             String[] coords = msgSplit[i].split(",");
             coords[0] = coords[0].substring(1);
@@ -366,46 +375,30 @@ public class ChineseCheckersAI {
                     move(r, c+2, PHASE_TWO);
                 }
             }
-
         }
-
-        //Want to call scoring here!
-        double score = score(moveList);
-        double distance = moveList.get(0)[0] - moveList.get(moveList.size() - 1)[0];
-        double priority = distance(new int[]{(moveList.get(0)[0]), (moveList.get(0)[1])}, new int[]{9, 5});
-
-        //If the score is better, changes the stuff
-        //TODO: change to method maybe ?
-        if (score > bestScore[0]) {
-            bestMoveList.clear();
-            //copy movelist to bestmovelist
-            bestScore[0] = score;
-            bestScore[1] = distance;
-            bestScore[2] = priority;
-            for (int i = 0; i < moveList.size(); i++) {
-                bestMoveList.add(moveList.get(i));
+        
+        if (isLegalEnd(r, c)) {
+            int distance = moveList.get(moveList.size()-1)[0] - moveList.get(0)[0];
+            int priority = moveList.get(0)[0];
+            int distanceFromCenter = distanceFromCenter((int)moveList.get(moveList.size()-1)[0], (int)moveList.get(moveList.size()-1)[1]);
+            boolean isBestScore = false;
+            if (distance > bestScore[0]) {
+                isBestScore = true;
+            } else if (distance == bestScore[0] && priority < bestScore[1]) {
+                isBestScore = true;
+            } else if (distance == bestScore[0] && priority == bestScore[1] && distanceFromCenter < bestScore[2]) {
+                isBestScore = true;
             }
-        } else if (score == bestScore[0] && distance > bestScore[1]) {
-            bestMoveList.clear();
-            //copy movelist to bestmovelist
-            bestScore[0] = score;
-            bestScore[1] = distance;
-            bestScore[2] = priority;
-            for (int i = 0; i < moveList.size(); i++) {
-                bestMoveList.add(moveList.get(i));
-            }
-        } else if (distance == bestScore[1] && priority < bestScore[2]) {
-            bestMoveList.clear();
-            //copy movelist to bestmovelist
-            bestScore[0] = score;
-            bestScore[1] = distance;
-            bestScore[2] = priority;
-            for (int i = 0; i < moveList.size(); i++) {
-                bestMoveList.add(moveList.get(i));
+            if (isBestScore) {
+                bestMoveList.clear();
+                for (int i=0; i<moveList.size(); i++) {
+                    bestMoveList.add(moveList.get(i));
+                }
+                bestScore[0] = distance;
+                bestScore[1] = priority;
+                bestScore[2] = distanceFromCenter;
             }
         }
-
-        //After scoring is done, board removes current position
         if (gameBoard[r][c] != 1) {
             gameBoard[r][c] = 0;
         }
@@ -415,80 +408,6 @@ public class ChineseCheckersAI {
 
 
     //****************Methods for playing the game****************
-
-    private double score(ArrayList<Integer[]> moves) {
-        double distance = 0;
-        int[] startMove = {(moves.get(0)[0]), (moves.get(0)[1])};
-        int[] endMove = {(moves.get(moves.size() - 1)[0]), (moves.get(moves.size() - 1)[1])};
-
-        double startDistance = Double.MAX_VALUE;
-        double endDistance = Double.MAX_VALUE;
-
-        for (int i = 0; i < end.length; i++) {
-            //Check if piece checked is already occupied
-            if (gameBoard[end[i][0]][end[i][1]] != 1) {
-                //Find shortest distance from starting move to goal
-                distance = distance(startMove, end[i]);
-                if (distance < startDistance) {
-                    startDistance = distance;
-                }
-                //Find shortest distance from last move to goal
-                distance = distance(endMove, end[i]);
-                if (distance < endDistance) {
-                    endDistance = distance;
-                }
-            }
-        }
-
-        return (startDistance - endDistance);
-    }
-
-    //pythagorean distance
-    private double distance(int[] start, int[] end) {
-        double distance = 0;
-        distance = Math.sqrt(Math.pow((double) (start[0] - end[0]), 2) + Math.pow((double) (start[1] - end[1]), 2));
-        return distance;
-    }
-
-    //bill code
-    //distance calculator by counting moves taken to reach goal
-    private double countDist(Integer[] start, Integer[] end) {
-
-    	//counting vertically
-    	double yCount = Math.abs(end[0] - start[0]);//difference of rows = y distance
-
-    	//counting diagonally
-    	int starty = start[0];
-    	int startx = start[1];
-    	int xyCount =0;
-    	if (end[0] >= starty && end[1] >= startx) {//end place is right and down of start
-    		while (starty != end[0] && startx != end[1]) {
-        		startx++;
-        		starty++;
-        		xyCount++;
-        	}
-    	} else {// (end[0] < starty && end[1] < startx) - end place is up and left of start place
-    		while (starty != end[0] && startx != end[1]) {
-        		startx--;
-        		starty--;
-        		xyCount++;
-        	}
-    	}
-
-    	//counting horizontally
-    	double xCount = Math.min((Math.abs(end[1] - start[1])), (Math.abs(end[1] - startx)));
-    	//difference of columns = x distance
-
-
-    	//returns the lowest 2 counts for shortest distance between 2 moves
-    	if (xyCount >= yCount && xyCount >= xCount) {
-    		return (yCount + xCount);
-    	} else if (yCount >= xCount && yCount >= xyCount) {
-    		return (yCount + xyCount);
-    	} else { //(xCount >= xyCount && xCount >= yCount)
-    		return (xyCount + yCount);
-    	}
-    }
 
     private boolean isLegalMove(int r, int c){
         if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
@@ -505,8 +424,60 @@ public class ChineseCheckersAI {
             return (c >= 5 && c <= (r - 4));
         } else if (r < 25) {
             return (c <= 13 && c >= (r-12));
+        } else if (r ==25) {
+            return (c == 13);
         } else {
             return false;
+        }
+    }
+
+    private boolean isLegalEnd(int r, int c) {
+        if (r<13 || r>21) {
+            return true;
+        } else if (r>12 && r<17) {
+            if (c<5) {
+                return false;
+            } else if ((r-c)<4) {
+                return false;
+            }
+            return true;
+        } else if (r>17) {
+            if (c>13) {
+                return false;
+            } else if ((r-c)>12) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int distanceFromCenter(int r, int c)  {
+        if (r<13 || r>21) {
+            return 0;
+        } else {
+            if (r%2 == 1) {
+                int temp = c - ((r-1)/2);
+                int lowerBound = ((r-1)/2);
+                int upperBound = lowerBound + 2;
+                if (temp >= 0 && temp <= 2) {
+                    return 0;
+                } else if (c<lowerBound) {
+                    return lowerBound-c;
+                } else {
+                    return c-upperBound;
+                }
+            } else {
+                int temp = c - (r/2);
+                int lowerBound = (r/2);
+                int upperBound = lowerBound + 3;
+                if (temp >= 0 && temp <= 3) {
+                    return 0;
+                } else if (c<lowerBound) {
+                    return lowerBound-c;
+                } else {
+                    return c-upperBound;
+                }
+            }
         }
     }
 
