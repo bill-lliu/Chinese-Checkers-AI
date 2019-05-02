@@ -424,6 +424,8 @@ public class ChineseCheckersAI {
             return (c >= 5 && c <= (r - 4));
         } else if (r < 25) {
             return (c <= 13 && c >= (r-12));
+        } else if (r ==25) {
+            return (c == 13);
         } else {
             return false;
         }
