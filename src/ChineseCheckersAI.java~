@@ -115,11 +115,17 @@ public class ChineseCheckersAI {
             }
         });
 
+        JButton defaultButton = new JButton("DEFAULT");
+        defaultButton.addActionListener(actionEvent -> {
+            connectToServer("localhost", 6666);
+        });
+        
         startPanel.add(serverIPLabel);
         startPanel.add(serverIPTextField);
         startPanel.add(portLabel);
         startPanel.add(portTextField);
         startPanel.add(okayButton);
+        startPanel.add(defaultButton);
         mainFrame.add(startPanel);
         repaintFrame();
         hardCodeStart();
@@ -232,10 +238,10 @@ public class ChineseCheckersAI {
       */
     private void play() {
         System.out.println("I should be called once");
-        bestMoveList.clear();
+        bestMoveList = new ArrayList<>();
         bestScore = new int[]{-1, 10000, 10000};
         for (int i=0; i<10; i++) {
-            moveList.clear();
+            moveList = new ArrayList<>();
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
         }
         moveSent = "MOVE";
@@ -431,9 +437,9 @@ public class ChineseCheckersAI {
         } else {
             if (r%2 == 1) {
                 int temp = c - ((r-1)/2);
-                int lowerBound = ((r-1)/2) + 4;
+                int lowerBound = ((r-1)/2);
                 int upperBound = lowerBound + 2;
-                if (temp >= 4 && temp <= 6) {
+                if (temp >= 0 && temp <= 2) {
                     return 0;
                 } else if (c<lowerBound) {
                     return lowerBound-c;
@@ -442,9 +448,9 @@ public class ChineseCheckersAI {
                 }    
             } else {
                 int temp = c - (r/2);
-                int lowerBound = (r/2) + 3;
+                int lowerBound = (r/2);
                 int upperBound = lowerBound + 3;
-                if (temp >= 3 && temp <= 6) {
+                if (temp >= 0 && temp <= 3) {
                     return 0;
                 } else if (c<lowerBound) {
                     return lowerBound-c;
