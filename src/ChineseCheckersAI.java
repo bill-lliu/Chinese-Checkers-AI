@@ -52,7 +52,7 @@ public class ChineseCheckersAI {
     private int[][] end;
 
     //Moving + Scoring
-    private int[] bestScore; //0 is displacement, 1 is priority
+    private double[] bestScore; //0 is displacement, 1 is priority
     private ArrayList<Integer[]> bestMoveList;
     private final int PHASE_ONE = 0;
     private final int PHASE_TWO = 1;
@@ -376,23 +376,46 @@ public class ChineseCheckersAI {
         }
 
         //Want to call scoring here!
-        //int score = score(shit);
-        //int priority shit //will figure out later
+        double score = score(moveList);
+        double distance = moveList.get(0)[0] - moveList.get(moveList.size() - 1)[0];
+        double priority = distance(new int[]{(moveList.get(0)[0]), (moveList.get(0)[1])}, new int[]{9, 5});
 
         //If the score is better, changes the stuff
-        /*if (score > bestScore[0] || (score == bestScore[0] && priority > bestScore[1])) {
-         copy the arraylist lol
-         bestMoveList.clear();
-         for (int i=0; i<moveList.size(); i++) {
-         bestMoveList.add(moveList.get(i));
-         }
-         }
-         */
+        //TODO: change to method maybe ?
+        if (score > bestScore[0]) {
+            bestMoveList.clear();
+            //copy movelist to bestmovelist
+            bestScore[0] = score;
+            bestScore[1] = distance;
+            bestScore[2] = priority;
+            for (int i = 0; i < moveList.size(); i++) {
+                bestMoveList.add(moveList.get(i));
+            }
+        } else if (score == bestScore[0] && distance > bestScore[1]) {
+            bestMoveList.clear();
+            //copy movelist to bestmovelist
+            bestScore[0] = score;
+            bestScore[1] = distance;
+            bestScore[2] = priority;
+            for (int i = 0; i < moveList.size(); i++) {
+                bestMoveList.add(moveList.get(i));
+            }
+        } else if (distance == bestScore[1] && priority < bestScore[2]) {
+            bestMoveList.clear();
+            //copy movelist to bestmovelist
+            bestScore[0] = score;
+            bestScore[1] = distance;
+            bestScore[2] = priority;
+            for (int i = 0; i < moveList.size(); i++) {
+                bestMoveList.add(moveList.get(i));
+            }
+        }
+
         //After scoring is done, board removes current position
         if (gameBoard[r][c] != 1) {
             gameBoard[r][c] = 0;
         }
-        moveList.remove(moveList.size()-1);
+        moveList.remove(moveList.size() - 1);
     }
 
 
@@ -400,27 +423,50 @@ public class ChineseCheckersAI {
     //****************Methods for playing the game****************
 
     private double score(ArrayList<Integer[]> moves) {
-        double score = 0;
-        Integer[] start = moves.get(0);
-        Integer[] end = moves.get(moves.size() - 1);
-        score = distance(start, end);
-        return score;
+        double distance = 0;
+        int[] startMove = {(moves.get(0)[0]), (moves.get(0)[1])};
+        int[] endMove = {(moves.get(moves.size() - 1)[0]), (moves.get(moves.size() - 1)[1])};
+
+        double startDistance = Double.MAX_VALUE;
+        double endDistance = Double.MAX_VALUE;
+
+        for (int i = 0; i < end.length; i++) {
+            //Check if piece checked is already occupied
+            if (gameBoard[end[i][0]][end[i][1]] != 1) {
+                //Find shortest distance from starting move to goal
+                distance = distance(startMove, end[i]);
+                if (distance < startDistance) {
+                    startDistance = distance;
+                }
+                //Find shortest distance from last move to goal
+                distance = distance(endMove, end[i]);
+                if (distance < endDistance) {
+                    endDistance = distance;
+                }
+            }
+        }
+
+        return (startDistance - endDistance);
     }
 
-    private double distance(Integer[] start, Integer[] end) {
+    //pythagorean distance
+    private double distance(int[] start, int[] end) {
         double distance = 0;
-
+        distance = Math.sqrt(Math.pow((double) (start[0] - end[0]), 2) + Math.pow((double) (start[1] - end[1]), 2));
         return distance;
     }
 
+    //bill code
     //distance calculator by counting moves taken to reach goal
     private double countDist(Integer[] start, Integer[] end) {
+    	
+    	//counting vertically
     	double yCount = Math.abs(end[0] - start[0]);//difference of rows = y distance
-    	double xCount = Math.abs(end[1] - start[1]);//difference of columns = x distance
+    	
+    	//counting diagonally
     	int starty = start[0];
     	int startx = start[1];
     	int xyCount =0;
-    	//checks where to count then counts diagonally
     	if (end[0] >= starty && end[1] >= startx) {//end place is right and down of start
     		while (starty != end[0] && startx != end[1]) {
         		startx++;
@@ -434,6 +480,12 @@ public class ChineseCheckersAI {
         		xyCount++;
         	}
     	}
+    	
+    	//counting horizontally
+    	double xCount = Math.min((Math.abs(end[1] - start[1])), (Math.abs(end[1] - startx)));
+    	//difference of columns = x distance
+    	
+    	
     	//returns the lowest 2 counts for shortest distance between 2 moves
     	if (xyCount >= yCount && xyCount >= xCount) {
     		return (yCount + xCount);
