@@ -238,7 +238,7 @@ public class ChineseCheckersAI {
       */
     private void play() {
         bestMoveList = new ArrayList<>();
-        bestScore = new int[]{-1, 10000, 10000};
+        bestScore = new double[]{-1, 10000, 10000};
         for (int i=0; i<10; i++) {
             moveList = new ArrayList<>();
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
@@ -410,10 +410,10 @@ public class ChineseCheckersAI {
     //****************Methods for playing the game****************
 
     private boolean isLegalMove(int r, int c){
-        if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
+        if (r < 9 || r > 25 || c < 1 || c > 17) {
             //Visited before or has a piece on it
             return false;
-        } else if (r < 9 || r > 25) {
+        } else if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
             //Out of bounds
             return false;
         } else if (r < 13) {
