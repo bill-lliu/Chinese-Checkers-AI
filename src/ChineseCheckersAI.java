@@ -173,7 +173,10 @@ public class ChineseCheckersAI {
                             //we gucci here
                             System.out.println("Starting game loop");
                             loadGamePanel();
-                            runGameLoop();
+                            int okay = JOptionPane.showConfirmDialog(null, "Are you ready?");
+                            if (okay == 0) {
+                                runGameLoop();
+                            }
                         } else {
                             System.out.println(msg);
                         }
