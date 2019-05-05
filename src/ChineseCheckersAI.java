@@ -5,6 +5,7 @@
  */
 
 //imports
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,11 +13,7 @@ import java.io.PrintWriter;
 
 import java.net.Socket;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 import java.util.ArrayList;
 
@@ -30,6 +27,9 @@ public class ChineseCheckersAI {
     private JFrame mainFrame;
     private JPanel startPanel;
     private JPanel joinPanel;
+    private JPanel gamePanel;
+    JLabel status = new JLabel("Status: Waiting for game start");
+    JTextArea messages = new JTextArea();
 
     //Server
     private Socket mySocket; //socket for connection
@@ -171,6 +171,8 @@ public class ChineseCheckersAI {
                     if (msg != null) {
                         if ("OK".equalsIgnoreCase((msg))) {
                             //we gucci here
+                            System.out.println("Starting game loop");
+                            loadGamePanel();
                             runGameLoop();
                         } else {
                             System.out.println(msg);
@@ -254,15 +256,43 @@ public class ChineseCheckersAI {
     }
 
 
+    /**loadGamePanel
+     * loads the game panel/statistics
+     */
+    private void loadGamePanel() {
+        gamePanel = new JPanel();
+        gamePanel.setVisible(true);
+
+        JPanel statsPanel = new JPanel();
+        statsPanel.setVisible(true);
+        JPanel boardPanel = new JPanel();
+        boardPanel.setVisible(true);
+
+        statsPanel.setLayout(new GridLayout(2,1));
+        statsPanel.add(status);
+        statsPanel.add(messages);
+        gamePanel.setLayout(new GridLayout(1,2));
+        gamePanel.add(statsPanel);
+        gamePanel.add(boardPanel);
+
+        mainFrame.remove(joinPanel);
+        mainFrame.add(gamePanel);
+        repaintFrame();
+    }
+
     /** runGameLoop
      * main game loop to continually wait for a message and responds
      */
     private void runGameLoop(){
+
         //This is where we do the looping waiting for stuff
         while (running) {
             try {
+                repaintFrame();
                 if (input.ready()) { //check for an incoming message
                     String msg = readMessagesFromServer();
+                    status.setText("Status: Moving");
+                    messages.append(msg + "\n");
                     try {
                         if (msg.indexOf("BOARD") >= 0) {
                             System.out.println(msg);
@@ -276,6 +306,7 @@ public class ChineseCheckersAI {
                             System.out.println(msg);
                         } else if (msg.indexOf("OK") >= 0) {
                             System.out.println("Move Successfully sent.");
+                            status.setText("Status: Waiting for turn");
                         }
                     } catch (NullPointerException e) {
                         System.out.println("Something broke");
