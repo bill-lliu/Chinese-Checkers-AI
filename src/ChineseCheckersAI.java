@@ -47,11 +47,12 @@ public class ChineseCheckersAI {
     //Moving + Scoring
     private double[] bestScore; 
     private ArrayList<Integer[]> bestMoveList;
-    private final int PHASE_ONE = 0;
-    private final int PHASE_TWO = 1;
-    private final int PHASE_THREE = 2;
-    private String moveSent;
-    private ArrayList<Integer[]> moveList;
+    //Each Phase represents the actions that a piece can legally take
+    private final int PHASE_ONE = 0; //Can do whatever
+    private final int PHASE_TWO = 1; //Cannot move 1 space
+    private final int PHASE_THREE = 2; //Cannot move anymore
+    private String moveSent; //To the server
+    private ArrayList<Integer[]> moveList; //ArrayList of moves lol
 
     //Main function
     public static void main(String [] args) {
@@ -63,36 +64,22 @@ public class ChineseCheckersAI {
         setUp();
     }
 
-    /** connectToServer
-     * Create and set up a new socket to connect to the server
-     * @param ip
-     * @param port
-     */
-    private void connectToServer(String ip, int port) {
-        try {
-            mySocket = new Socket(ip, port);
-            InputStreamReader stream = new InputStreamReader(mySocket.getInputStream());
-            input = new BufferedReader(stream);
-            output = new PrintWriter(mySocket.getOutputStream());
-            joinRoom();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     /** setUp
      * Initiating function to start up the server
      */
     private void setUp(){
-        //initiating display items
+        //Initiating display items
         mainFrame = new JFrame("Chinese Checkers AI");
         mainFrame.setVisible(true);
         mainFrame.setSize(400,400);
 
-        //initiating game items
-        //gameBoard = new int[30][30];//FIX THESE NUMBERS
+        //Initiating our 2D array of pieces
         gamePieces = new int[10][2];//XY of our pieces (first index is piece number, second index is r or c)
+        
+        //Initialize the start and end points
+        hardCodeEnd();
 
+        //Setting up startpanel
         startPanel = new JPanel();
         startPanel.setVisible(true);
         JLabel serverIPLabel = new JLabel("Enter the IP Address");
@@ -114,12 +101,12 @@ public class ChineseCheckersAI {
                 e.printStackTrace();
             }
         });
-
         JButton defaultButton = new JButton("DEFAULT");
         defaultButton.addActionListener(actionEvent -> {
             connectToServer("localhost", 6666);
         });
         
+        //Add everything to the panel + frame
         startPanel.add(serverIPLabel);
         startPanel.add(serverIPTextField);
         startPanel.add(portLabel);
@@ -128,9 +115,27 @@ public class ChineseCheckersAI {
         startPanel.add(defaultButton);
         mainFrame.add(startPanel);
         repaintFrame();
-        hardCodeStart();
-        hardCodeEnd();
     }
+    
+    /** connectToServer
+     * Create and set up a new socket to connect to the server
+     * @param ip
+     * @param port
+     */
+    private void connectToServer(String ip, int port) {
+        try {
+            //Sets up the proper socket, input and output
+            mySocket = new Socket(ip, port);
+            InputStreamReader stream = new InputStreamReader(mySocket.getInputStream());
+            input = new BufferedReader(stream);
+            output = new PrintWriter(mySocket.getOutputStream());
+            joinRoom();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
 
     /** repaintFrame
      * Refreshes the display
@@ -144,9 +149,11 @@ public class ChineseCheckersAI {
      * User UI to enter a room name and player name
      */
     private void joinRoom() {
+        //Setting up joinPanel
         joinPanel = new JPanel();
         joinPanel.setVisible(true);
 
+        //Setting up components of the panel
         JLabel roomLabel = new JLabel("Enter room name");
         JTextField roomTextField = new JTextField(20);
         JLabel nameLabel = new JLabel("Enter username");
@@ -187,6 +194,7 @@ public class ChineseCheckersAI {
 
         });
 
+        //Adding components of the panel
         joinPanel.add(roomLabel);
         joinPanel.add(roomTextField);
         joinPanel.add(nameLabel);
@@ -195,6 +203,7 @@ public class ChineseCheckersAI {
         mainFrame.remove(startPanel);
         mainFrame.add(joinPanel);
 
+        //Setting up the ArrayLists that we want to use
         bestMoveList = new ArrayList<>();
         moveList = new ArrayList<>();
         repaintFrame();
@@ -202,7 +211,7 @@ public class ChineseCheckersAI {
 
     
     /** readMessageFromServer
-     * reads input
+     * Reads input from the server and returns it
      * @return String
      */
     private String readMessagesFromServer() {
@@ -238,11 +247,14 @@ public class ChineseCheckersAI {
       */
     private void play() {
         bestMoveList = new ArrayList<>();
+        //Setting up the limits for each category
         bestScore = new double[]{-1, 10000, -1, 10000};
+        //Checks all possible moves for all of our pieces
         for (int i=0; i<10; i++) {
             moveList = new ArrayList<>();
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
         }
+        //Creating the string that we send to the server
         moveSent = "MOVE";
         StringBuilder s = new StringBuilder(moveSent);
         for (int i=0; i<bestMoveList.size(); i++) {
@@ -255,7 +267,7 @@ public class ChineseCheckersAI {
 
     
     /** runGameLoop
-     * main game loop to continually wait for a message and responds
+     * Main game loop to continually wait for a message and responds
      */
     private void runGameLoop(){
         //This is where we do the looping waiting for stuff
@@ -312,7 +324,10 @@ public class ChineseCheckersAI {
 
     
     /** move
-     * move function that also calls the score function after each move
+     * Move function that also calls the score function after each move
+     * @param int r
+     * @param int c
+     * @param int phase The phase of the turn, explained in variable init
      */
     private void move(int r, int c, int phase) {
         if (gameBoard[r][c] != 1) {
@@ -344,7 +359,7 @@ public class ChineseCheckersAI {
         }
         if (phase == PHASE_TWO || phase == PHASE_ONE) {
             //If it is an illegal move 1 adjacent, then it is either out of bounds or has a piece there
-            //Check the jump piece if it is a legal move because
+            //Check the jump piece if it is a legal move because we will never jump over an out of bounds spot back in bounds
             if (!isLegalMove(r-1, c)) {
                 if (isLegalMove(r-2, c)) {
                     move(r-2, c, PHASE_TWO);
@@ -377,6 +392,7 @@ public class ChineseCheckersAI {
             }
 
         }
+        //If the move is legal to end in, we score the move
         if (isLegalEnd(r, c)) {
             double distance = (double)moveList.get(moveList.size()-1)[0] - moveList.get(0)[0];
             double priority = (double)moveList.get(0)[0];
@@ -412,7 +428,12 @@ public class ChineseCheckersAI {
 
 
     //****************Methods for playing the game****************
-
+    /** isLegalMove
+     * Returns true if it is not out of bounds or has a piece on the space already
+     * @param int r
+     * @param int c
+     * @return boolean
+     */
     private boolean isLegalMove(int r, int c){
         if (r < 9 || r > 25 || c<1 || c>17) {
             //Out of bounds
@@ -435,6 +456,12 @@ public class ChineseCheckersAI {
         }
     }
     
+    /** isLegalEnd
+     * returns false if it is the end goal of another player that is not directly across from you
+     * @param int r
+     * @param int c
+     * @return boolean
+     */
     private boolean isLegalEnd(int r, int c) {
         if (r<13 || r>21) {
             return true;
@@ -455,6 +482,12 @@ public class ChineseCheckersAI {
         return true;
     }
     
+    /** distanceFromCenter
+     * Returns the distance from the center vertical column of the board (middle 3-4 spots)
+     * @param int r
+     * @param int c
+     * @return int
+     */
     private int distanceFromCenter(int r, int c)  {
         if (r<13 || r>21) {
             return 0;
@@ -485,12 +518,23 @@ public class ChineseCheckersAI {
         }
     }
     
+    /** distance
+     * Takes in the start and end position and returns the pythagorean distance
+     * @param int[] start
+     * @param int[] end
+     * @return double
+     */
     private double distance(int[] start, int[] end) {
         double distance = 0;
         distance = Math.sqrt(Math.pow((double) (start[0] - end[0]), 2) + Math.pow((double) (start[1] - end[1]), 2));
         return distance;
     }
     
+    /** score
+     * Takes in an ArrayList of moves and returns the score of that sequence (displacement towards the end goal)
+     * @param ArrayList moves
+     * @return double 
+     */
      private double score(ArrayList<Integer[]> moves) {
         double distance = 0;
         int[] startMove = {(moves.get(0)[0]), (moves.get(0)[1])};
@@ -517,30 +561,9 @@ public class ChineseCheckersAI {
         return (startDistance - endDistance);
     }
     
-    private void hardCodeStart() {
-        start = new int[10][2];
-        start[0][0] = 9;
-        start[0][1] = 5;
-        start[1][0] = 10;
-        start[1][1] = 5;
-        start[2][0] = 10;
-        start[2][1] = 6;
-        start[3][0] = 11;
-        start[3][1] = 5;
-        start[4][0] = 11;
-        start[4][1] = 6;
-        start[5][0] = 11;
-        start[5][1] = 7;
-        start[6][0] = 12;
-        start[6][1] = 5;
-        start[7][0] = 12;
-        start[7][1] = 6;
-        start[8][0] = 12;
-        start[8][1] = 7;
-        start[9][0] = 12;
-        start[9][1] = 8;
-    }
-
+    /** hardCodeEnd
+     * Initializes the 10 spots that we end with
+     */
     private void hardCodeEnd() {
         end = new int[10][2];
         end[0][0] = 22;
