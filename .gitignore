@@ -3,6 +3,10 @@
 *.java~
 *.xml
 *.iml
+<<<<<<< HEAD
 *.java~
 /.metadata
 /.idea
+=======
+
+>>>>>>> 742a046889f318366c31d2dc569ca247277d2bb7
