@@ -45,14 +45,24 @@ public class ChineseCheckersAI {
     private int[][] end;
     
     //Moving + Scoring
-    private double[] bestScore; //0 is displacement, 1 is priority
+    private double[] bestScore; 
     private ArrayList<Integer[]> bestMoveList;
+<<<<<<< HEAD
     private final int PHASE_ONE = 0;
     private final int PHASE_TWO = 1;
     private final int PHASE_THREE = 2;
     private String moveSent;
     private ArrayList<Integer[]> moveList;
     
+=======
+    //Each Phase represents the actions that a piece can legally take
+    private final int PHASE_ONE = 0; //Can do whatever
+    private final int PHASE_TWO = 1; //Cannot move 1 space
+    private final int PHASE_THREE = 2; //Cannot move anymore
+    private String moveSent; //To the server
+    private ArrayList<Integer[]> moveList; //ArrayList of moves lol
+
+>>>>>>> master
     //Main function
     public static void main(String [] args) {
         ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
@@ -62,6 +72,7 @@ public class ChineseCheckersAI {
     ChineseCheckersAI(){
         setUp();
     }
+<<<<<<< HEAD
     
     /** connectToServer
       * Create and set up a new socket to connect to the server
@@ -80,19 +91,33 @@ public class ChineseCheckersAI {
         }
     }
     
+=======
+
+>>>>>>> master
     /** setUp
       * Initiating function to start up the server
       */
     private void setUp(){
-        //initiating display items
+        //Initiating display items
         mainFrame = new JFrame("Chinese Checkers AI");
         mainFrame.setVisible(true);
         mainFrame.setSize(400,400);
+<<<<<<< HEAD
         
         //initiating game items
         //gameBoard = new int[30][30];//FIX THESE NUMBERS
         gamePieces = new int[10][2];//XY of our pieces (first index is piece number, second index is r or c)
         
+=======
+
+        //Initiating our 2D array of pieces
+        gamePieces = new int[10][2];//XY of our pieces (first index is piece number, second index is r or c)
+        
+        //Initialize the start and end points
+        hardCodeEnd();
+
+        //Setting up startpanel
+>>>>>>> master
         startPanel = new JPanel();
         startPanel.setVisible(true);
         JLabel serverIPLabel = new JLabel("Enter the IP Address");
@@ -114,12 +139,19 @@ public class ChineseCheckersAI {
                 e.printStackTrace();
             }
         });
+<<<<<<< HEAD
         
+=======
+>>>>>>> master
         JButton defaultButton = new JButton("DEFAULT");
         defaultButton.addActionListener(actionEvent -> {
             connectToServer("localhost", 6666);
         });
         
+<<<<<<< HEAD
+=======
+        //Add everything to the panel + frame
+>>>>>>> master
         startPanel.add(serverIPLabel);
         startPanel.add(serverIPTextField);
         startPanel.add(portLabel);
@@ -128,10 +160,32 @@ public class ChineseCheckersAI {
         startPanel.add(defaultButton);
         mainFrame.add(startPanel);
         repaintFrame();
-        hardCodeStart();
-        hardCodeEnd();
     }
     
+    /** connectToServer
+     * Create and set up a new socket to connect to the server
+     * @param ip
+     * @param port
+     */
+    private void connectToServer(String ip, int port) {
+        try {
+            //Sets up the proper socket, input and output
+            mySocket = new Socket(ip, port);
+            InputStreamReader stream = new InputStreamReader(mySocket.getInputStream());
+            input = new BufferedReader(stream);
+            output = new PrintWriter(mySocket.getOutputStream());
+            joinRoom();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+<<<<<<< HEAD
+    
+=======
+
+    
+
+>>>>>>> master
     /** repaintFrame
       * Refreshes the display
       */
@@ -144,9 +198,15 @@ public class ChineseCheckersAI {
       * User UI to enter a room name and player name
       */
     private void joinRoom() {
+        //Setting up joinPanel
         joinPanel = new JPanel();
         joinPanel.setVisible(true);
+<<<<<<< HEAD
         
+=======
+
+        //Setting up components of the panel
+>>>>>>> master
         JLabel roomLabel = new JLabel("Enter room name");
         JTextField roomTextField = new JTextField(20);
         JLabel nameLabel = new JLabel("Enter username");
@@ -191,7 +251,12 @@ public class ChineseCheckersAI {
             }
             
         });
+<<<<<<< HEAD
         
+=======
+
+        //Adding components of the panel
+>>>>>>> master
         joinPanel.add(roomLabel);
         joinPanel.add(roomTextField);
         joinPanel.add(nameLabel);
@@ -199,17 +264,31 @@ public class ChineseCheckersAI {
         joinPanel.add(okayButton);
         mainFrame.remove(startPanel);
         mainFrame.add(joinPanel);
+<<<<<<< HEAD
         
+=======
+
+        //Setting up the ArrayLists that we want to use
+>>>>>>> master
         bestMoveList = new ArrayList<>();
         moveList = new ArrayList<>();
         repaintFrame();
     }
+<<<<<<< HEAD
     
     
     /** readMessageFromServer
       * reads input
       * @return String
       */
+=======
+
+    
+    /** readMessageFromServer
+     * Reads input from the server and returns it
+     * @return String
+     */
+>>>>>>> master
     private String readMessagesFromServer() {
         try {
             if (input.ready()) { //check for an incoming messge
@@ -235,7 +314,11 @@ public class ChineseCheckersAI {
 //  }
         
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> master
     
     
     /** play
@@ -243,11 +326,18 @@ public class ChineseCheckersAI {
       */
     private void play() {
         bestMoveList = new ArrayList<>();
+<<<<<<< HEAD
         bestScore = new double[]{-1, 10000, 10000};
+=======
+        //Setting up the limits for each category
+        bestScore = new double[]{-1, 10000, -1, 10000};
+        //Checks all possible moves for all of our pieces
+>>>>>>> master
         for (int i=0; i<10; i++) {
             moveList = new ArrayList<>();
             move(gamePieces[i][0], gamePieces[i][1], PHASE_ONE);
         }
+        //Creating the string that we send to the server
         moveSent = "MOVE";
         StringBuilder s = new StringBuilder(moveSent);
         for (int i=0; i<bestMoveList.size(); i++) {
@@ -257,6 +347,7 @@ public class ChineseCheckersAI {
         }
         moveSent = s.toString();
     }
+<<<<<<< HEAD
     
     
     /**loadGamePanel
@@ -286,6 +377,13 @@ public class ChineseCheckersAI {
     /** runGameLoop
       * main game loop to continually wait for a message and responds
       */
+=======
+
+    
+    /** runGameLoop
+     * Main game loop to continually wait for a message and responds
+     */
+>>>>>>> master
     private void runGameLoop(){
         
         //This is where we do the looping waiting for stuff
@@ -321,7 +419,11 @@ public class ChineseCheckersAI {
             }
         }
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> master
     
     /** resetBoard
       * Refresh the board after each play
@@ -343,11 +445,22 @@ public class ChineseCheckersAI {
             }
         }
     }
+<<<<<<< HEAD
     
     
     /** move
       * move function that also calls the score function after each move
       */
+=======
+
+    
+    /** move
+     * Move function that also calls the score function after each move
+     * @param int r
+     * @param int c
+     * @param int phase The phase of the turn, explained in variable init
+     */
+>>>>>>> master
     private void move(int r, int c, int phase) {
         if (gameBoard[r][c] != 1) {
             gameBoard[r][c] = 2;
@@ -378,7 +491,7 @@ public class ChineseCheckersAI {
         }
         if (phase == PHASE_TWO || phase == PHASE_ONE) {
             //If it is an illegal move 1 adjacent, then it is either out of bounds or has a piece there
-            //Check the jump piece if it is a legal move because
+            //Check the jump piece if it is a legal move because we will never jump over an out of bounds spot back in bounds
             if (!isLegalMove(r-1, c)) {
                 if (isLegalMove(r-2, c)) {
                     move(r-2, c, PHASE_TWO);
@@ -409,18 +522,22 @@ public class ChineseCheckersAI {
                     move(r, c+2, PHASE_TWO);
                 }
             }
+
         }
-        
+        //If the move is legal to end in, we score the move
         if (isLegalEnd(r, c)) {
-            int distance = moveList.get(moveList.size()-1)[0] - moveList.get(0)[0];
-            int priority = moveList.get(0)[0];
-            int distanceFromCenter = distanceFromCenter((int)moveList.get(moveList.size()-1)[0], (int)moveList.get(moveList.size()-1)[1]);
+            double distance = (double)moveList.get(moveList.size()-1)[0] - moveList.get(0)[0];
+            double priority = (double)moveList.get(0)[0];
+            double distanceToEnd = score(moveList);
+            double distanceFromCenter = (double)distanceFromCenter((int)moveList.get(moveList.size()-1)[0], (int)moveList.get(moveList.size()-1)[1]);      
             boolean isBestScore = false;
             if (distance > bestScore[0]) {
                 isBestScore = true;
             } else if (distance == bestScore[0] && priority < bestScore[1]) {
                 isBestScore = true;
-            } else if (distance == bestScore[0] && priority == bestScore[1] && distanceFromCenter < bestScore[2]) {
+            } else if (distance == bestScore[0] && priority == bestScore[1] && distanceToEnd > bestScore[2]) {
+                isBestScore = true;
+            } else if (distance == bestScore[0] && priority == bestScore[1] && distanceToEnd == bestScore[2] && distanceFromCenter < bestScore[3]) {
                 isBestScore = true;
             }
             if (isBestScore) {
@@ -430,25 +547,40 @@ public class ChineseCheckersAI {
                 }
                 bestScore[0] = distance;
                 bestScore[1] = priority;
-                bestScore[2] = distanceFromCenter;
+                bestScore[2] = distanceToEnd;
+                bestScore[3] = distanceFromCenter;
             }
         }
         if (gameBoard[r][c] != 1) {
             gameBoard[r][c] = 0;
         }
-        moveList.remove(moveList.size() - 1);
+        moveList.remove(moveList.size()-1);
     }
     
     
     
     //****************Methods for playing the game****************
+<<<<<<< HEAD
     
     private boolean isLegalMove(int r, int c){
         if (r < 9 || r > 25 || c < 1 || c > 17) {
             //Visited before or has a piece on it
             return false;
         } else if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
+=======
+    /** isLegalMove
+     * Returns true if it is not out of bounds or has a piece on the space already
+     * @param int r
+     * @param int c
+     * @return boolean
+     */
+    private boolean isLegalMove(int r, int c){
+        if (r < 9 || r > 25 || c<1 || c>17) {
+>>>>>>> master
             //Out of bounds
+            return false;
+        } else if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
+            //Visited before or has a piece on it
             return false;
         } else if (r < 13) {
             return (c >= 5 && c <= r - 4);
@@ -465,6 +597,15 @@ public class ChineseCheckersAI {
         }
     }
     
+<<<<<<< HEAD
+=======
+    /** isLegalEnd
+     * returns false if it is the end goal of another player that is not directly across from you
+     * @param int r
+     * @param int c
+     * @return boolean
+     */
+>>>>>>> master
     private boolean isLegalEnd(int r, int c) {
         if (r<13 || r>21) {
             return true;
@@ -485,6 +626,15 @@ public class ChineseCheckersAI {
         return true;
     }
     
+<<<<<<< HEAD
+=======
+    /** distanceFromCenter
+     * Returns the distance from the center vertical column of the board (middle 3-4 spots)
+     * @param int r
+     * @param int c
+     * @return int
+     */
+>>>>>>> master
     private int distanceFromCenter(int r, int c)  {
         if (r<13 || r>21) {
             return 0;
@@ -499,7 +649,7 @@ public class ChineseCheckersAI {
                     return lowerBound-c;
                 } else {
                     return c-upperBound;
-                }
+                }    
             } else {
                 int temp = c - (r/2);
                 int lowerBound = (r/2);
@@ -510,11 +660,12 @@ public class ChineseCheckersAI {
                     return lowerBound-c;
                 } else {
                     return c-upperBound;
-                }
+                } 
             }
         }
     }
     
+<<<<<<< HEAD
     private void hardCodeStart() {
         start = new int[10][2];
         start[0][0] = 9;
@@ -539,6 +690,54 @@ public class ChineseCheckersAI {
         start[9][1] = 8;
     }
     
+=======
+    /** distance
+     * Takes in the start and end position and returns the pythagorean distance
+     * @param int[] start
+     * @param int[] end
+     * @return double
+     */
+    private double distance(int[] start, int[] end) {
+        double distance = 0;
+        distance = Math.sqrt(Math.pow((double) (start[0] - end[0]), 2) + Math.pow((double) (start[1] - end[1]), 2));
+        return distance;
+    }
+    
+    /** score
+     * Takes in an ArrayList of moves and returns the score of that sequence (displacement towards the end goal)
+     * @param ArrayList moves
+     * @return double 
+     */
+     private double score(ArrayList<Integer[]> moves) {
+        double distance = 0;
+        int[] startMove = {(moves.get(0)[0]), (moves.get(0)[1])};
+        int[] endMove = {(moves.get(moves.size() - 1)[0]), (moves.get(moves.size() - 1)[1])};
+
+        double startDistance = Double.MAX_VALUE;
+        double endDistance = Double.MAX_VALUE;
+
+        for (int i = 0; i < end.length; i++) {
+            //Check if piece checked is already occupied
+            if (gameBoard[end[i][0]][end[i][1]] != 1) {
+                //Find shortest distance from starting move to goal
+                distance = distance(startMove, end[i]);
+                if (distance < startDistance) {
+                    startDistance = distance;
+                }
+                //Find shortest distance from last move to goal
+                distance = distance(endMove, end[i]);
+                if (distance < endDistance) {
+                    endDistance = distance;
+                }
+            }
+        }
+        return (startDistance - endDistance);
+    }
+    
+    /** hardCodeEnd
+     * Initializes the 10 spots that we end with
+     */
+>>>>>>> master
     private void hardCodeEnd() {
         end = new int[10][2];
         end[0][0] = 22;
