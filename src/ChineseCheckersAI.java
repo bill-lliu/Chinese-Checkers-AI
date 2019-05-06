@@ -25,6 +25,7 @@ import java.util.ArrayList;
 public class ChineseCheckersAI {
     //GUI
     private JFrame mainFrame;
+    private JFrame gameFrame;
     private JPanel startPanel;
     private JPanel joinPanel;
     private JPanel gamePanel;
@@ -136,8 +137,17 @@ public class ChineseCheckersAI {
       * Refreshes the display
       */
     private void repaintFrame() {
+
         mainFrame.setVisible(true);
+        mainFrame.revalidate();
         mainFrame.repaint();
+    }
+
+    private void repaintGameFrame() {
+
+        gameFrame.setVisible(true);
+        gameFrame.revalidate();
+        gameFrame.repaint();
     }
     
     /** joinRoom
@@ -177,6 +187,7 @@ public class ChineseCheckersAI {
                             if (okay == 0) {
                                 runGameLoop();
                             }
+                            //runGameLoop();
                         } else {
                             System.out.println(msg);
                         }
@@ -277,10 +288,14 @@ public class ChineseCheckersAI {
         gamePanel.setLayout(new GridLayout(1,2));
         gamePanel.add(statsPanel);
         gamePanel.add(boardPanel);
-        
-        mainFrame.remove(joinPanel);
-        mainFrame.add(gamePanel);
-        repaintFrame();
+
+        gameFrame = new JFrame("Game");
+        gameFrame.setVisible(true);
+        gameFrame.setSize(400,400);
+
+        //mainFrame.remove(joinPanel);
+        gameFrame.add(gamePanel);
+        repaintGameFrame();
     }
     
     /** runGameLoop
@@ -291,7 +306,6 @@ public class ChineseCheckersAI {
         //This is where we do the looping waiting for stuff
         while (running) {
             try {
-                repaintFrame();
                 if (input.ready()) { //check for an incoming message
                     String msg = readMessagesFromServer();
                     status.setText("Status: Moving");
@@ -315,6 +329,9 @@ public class ChineseCheckersAI {
                         System.out.println("Something broke");
                         e.printStackTrace();
                     }
+                    gamePanel.revalidate();
+                    gamePanel.repaint();
+                    repaintGameFrame();
                 }
             } catch (IOException e) {
                 //Nothing happens hopefully
