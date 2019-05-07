@@ -5,6 +5,7 @@
  */
 
 //imports
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,11 +13,8 @@ import java.io.PrintWriter;
 
 import java.net.Socket;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 
 import java.util.ArrayList;
 
@@ -178,7 +176,9 @@ public class ChineseCheckersAI {
                     if (msg != null) {
                         if ("OK".equalsIgnoreCase((msg))) {
                             //we gucci here
-                            runGameLoop();
+                            Thread t = new Thread(new GameFrame(room, username));
+                            t.start();
+                            //runGameLoop();
                         } else {
                             System.out.println(msg);
                         }
@@ -586,5 +586,108 @@ public class ChineseCheckersAI {
         end[8][1] = 13;
         end[9][0] = 25;
         end[9][1] = 13;
+    }
+
+    class GameFrame extends JFrame implements Runnable {
+        JPanel infoPanel;
+        BoardPanel boardPanel;
+        JScrollPane logPane;
+        JLabel status;
+        JTextArea log;
+        int turn = 0;
+
+        GameFrame(String room, String name) {
+            this.setTitle(name + " | Room: " + room);
+            this.setSize(1080,540);
+            this.setLayout(new GridLayout(1,2));
+
+            infoPanel = new JPanel();
+            infoPanel.setLayout(new GridLayout(2,1));
+            status = new JLabel("Status: Waiting for turn");
+            log = new JTextArea();
+            logPane = new JScrollPane(log);
+
+            //Automatically scroll log to the bottom
+            DefaultCaret caret = (DefaultCaret)log.getCaret();
+            caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+            infoPanel.add(status);
+            infoPanel.add(logPane);
+            this.add(infoPanel);
+
+            boardPanel = new BoardPanel();
+            this.add(boardPanel);
+            this.setVisible(true);
+        }
+
+        public void run() {
+            while (running) {
+                try {
+                    if (input.ready()) { //check for an incoming message
+                        this.status.setText("Status: Moving");
+                        String msg = readMessagesFromServer();
+                        try {
+                            if (msg.indexOf("BOARD") >= 0) {
+                                turn++;
+                                log.append("Turn " + turn + "\n");
+                                String[] msgSplit = msg.split(" ");
+                                resetBoard(msgSplit);
+                                play();
+                                log.append(moveSent + "\n");
+                                output.println(moveSent);
+                                output.flush();
+
+                                boardPanel.repaint();
+                            } else if (msg.indexOf("ERROR") >= 0) {
+                                log.append(msg + "\n");
+                            } else if (msg.indexOf("OK") >= 0) {
+                                log.append(msg + "\n");
+                            }
+                        } catch (NullPointerException e) {
+                            System.out.println("Something broke");
+                            e.printStackTrace();
+                        }
+                        this.status.setText("waiting for turn");
+                    }
+                } catch (IOException e) {
+                    //Nothing happens hopefully
+                }
+            }
+        }
+
+    }
+
+    class BoardPanel extends JPanel {
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            //Draw the grid
+            for (int r = 9; r <= 25; r++) {
+                for (int c = 1; c < 17; c++) {
+                    if (validSpace(r,c)) {
+                        g.setColor(Color.BLACK);
+                        g.drawOval(c * 5, r * 5, 3, 3);
+                    }
+                }
+            }
+        }
+
+        private boolean validSpace(int r, int c) {
+            if (r < 9 || r > 25 || c<1 || c>17) {
+                return false;
+            } else if (r < 13) {
+                return (c >= 5 && c <= r - 4);
+            } else if (r < 17) {
+                return (c <= 13 && c >= (r + 1) - 13);
+            } else if (r < 21) {
+                return (c >= 5 && c <= (r - 4));
+            } else if (r < 25) {
+                return (c <= 13 && c >= (r-12));
+            } else if (r == 25) {
+                return (c == 13);
+            } else {
+                return false;
+            }
+        }
     }
 }
