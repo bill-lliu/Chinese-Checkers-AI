@@ -5,7 +5,9 @@
  */
 
 //imports
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,7 +15,13 @@ import java.io.PrintWriter;
 
 import java.net.Socket;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
 import java.util.ArrayList;
@@ -630,6 +638,7 @@ public class ChineseCheckersAI {
                             if (msg.indexOf("BOARD") >= 0) {
                                 turn++;
                                 log.append("Turn " + turn + "\n");
+                                log.append(msg + "\n");
                                 String[] msgSplit = msg.split(" ");
                                 resetBoard(msgSplit);
                                 play();
@@ -658,17 +667,42 @@ public class ChineseCheckersAI {
     }
 
     class BoardPanel extends JPanel {
+        int xDisplacement = 15;
+        int yDisplacement = 15;
+        int size = 13;
+        //17, 9
+        int center = 17;
+
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             //Draw the grid
+            g.setColor(Color.BLACK);
             for (int r = 9; r <= 25; r++) {
                 for (int c = 1; c < 17; c++) {
                     if (validSpace(r,c)) {
-                        g.setColor(Color.BLACK);
-                        g.drawOval(c * 5, r * 5, 3, 3);
+                        g.drawOval(c * xDisplacement, r * yDisplacement, size, size);
                     }
                 }
+            }
+            try {
+                //Draw the pieces on the grid
+                g.setColor(Color.GRAY);
+                for (int i = 0; i < gameBoard.length; i++) {
+                    int r = gameBoard[i][0];
+                    int c = gameBoard[i][1];
+                    //System.out.println(r + " " + c);
+                    g.fillOval(c * xDisplacement, r * yDisplacement, size, size);
+                }
+                //Draw our pieces on the grid
+                g.setColor(Color.RED);
+                for (int i = 0; i < gamePieces.length; i++) {
+                    int r = gamePieces[i][0];
+                    int c = gamePieces[i][1];
+                    g.fillOval(c * xDisplacement, r * yDisplacement, size, size);
+                }
+            } catch (NullPointerException e) {
+                //board not initialized yet
             }
         }
 
