@@ -49,10 +49,13 @@ public class ChineseCheckersAI {
     private ArrayList<Integer[]> bestMoveList;
     //Each Phase represents the actions that a piece can legally take
     private final int PHASE_ONE = 0; //Can do whatever
-    private final int PHASE_TWO = 1; //Cannot move 1 space
+    private final int PHASE_TWO = 1; //Cannot move 1 space (only jumps)
     private final int PHASE_THREE = 2; //Cannot move anymore
+    private final int PHASE_FOUR = 3; // Checking future move, can do whatever
+    private final int PHASE_FIVE = 4; // Checking future move, cannot move 1 space (only jumps)
+    private final int PHASE_SIX = 2; //Cannot move anymore (same as phase three)
     private String moveSent; //To the server
-    private ArrayList<Integer[]> moveList; //ArrayList of moves lol
+    private ArrayList<Integer[]> moveList; //ArrayList of moves
 
     //Main function
     public static void main(String [] args) {
@@ -327,7 +330,7 @@ public class ChineseCheckersAI {
      * Move function that also calls the score function after each move
      * @param int r
      * @param int c
-     * @param int phase The phase of the turn, explained in variable init
+     * @param int phase //The phase of the turn, explained in variable initialization
      */
     private void move(int r, int c, int phase) {
         if (gameBoard[r][c] != 1) {
@@ -338,55 +341,55 @@ public class ChineseCheckersAI {
         move[1] = c;
         moveList.add(move);
         if (phase == PHASE_ONE) {
-            if (isLegalMove(r-1, c)) {
+            if (isLegalMove(r-1, c) == 0) {
                 move(r-1, c, PHASE_THREE);
             }
-            if (isLegalMove(r-1, c-1)) {
+            if (isLegalMove(r-1, c-1) == 0) {
                 move(r-1,c-1, PHASE_THREE);
             }
-            if (isLegalMove(r, c-1)) {
+            if (isLegalMove(r, c-1) == 0) {
                 move(r, c-1, PHASE_THREE);
             }
-            if (isLegalMove(r+1, c)) {
+            if (isLegalMove(r+1, c) == 0) {
                 move(r+1, c, PHASE_THREE);
             }
-            if (isLegalMove(r+1, c+1)) {
+            if (isLegalMove(r+1, c+1) == 0) {
                 move(r+1, c+1, PHASE_THREE);
             }
-            if (isLegalMove(r, c+1)) {
+            if (isLegalMove(r, c+1) == 0) {
                 move(r, c+1, PHASE_THREE);
             }
         }
         if (phase == PHASE_TWO || phase == PHASE_ONE) {
             //If it is an illegal move 1 adjacent, then it is either out of bounds or has a piece there
             //Check the jump piece if it is a legal move because we will never jump over an out of bounds spot back in bounds
-            if (!isLegalMove(r-1, c)) {
-                if (isLegalMove(r-2, c)) {
+            if (isLegalMove(r-1, c) != 0) {
+                if (isLegalMove(r-2, c) == 0) {
                     move(r-2, c, PHASE_TWO);
                 }
             }
-            if (!isLegalMove(r-1, c-1)) {
-                if (isLegalMove(r-2, c-2)) {
+            if (isLegalMove(r-1, c-1) != 0) {
+                if (isLegalMove(r-2, c-2) == 0) {
                     move(r-2, c-2, PHASE_TWO);
                 }
             }
-            if (!isLegalMove(r, c-1)) {
-                if (isLegalMove(r, c-2)) {
+            if (isLegalMove(r, c-1) != 0) {
+                if (isLegalMove(r, c-2) == 0) {
                     move(r, c-2, PHASE_TWO);
                 }
             }
-            if (!isLegalMove(r+1, c)) {
-                if (isLegalMove(r+2, c)) {
+            if (isLegalMove(r+1, c) != 0) {
+                if (isLegalMove(r+2, c) == 0) {
                     move(r+2, c, PHASE_TWO);
                 }
             }
-            if (!isLegalMove(r+1, c+1)) {
-                if (isLegalMove(r+2, c+2)) {
+            if (isLegalMove(r+1, c+1) != 0) {
+                if (isLegalMove(r+2, c+2) == 0) {
                     move(r+2, c+2, PHASE_TWO);
                 }
             }
-            if (!isLegalMove(r, c+1)) {
-                if (isLegalMove(r, c+2)) {
+            if (isLegalMove(r, c+1) != 0) {
+                if (isLegalMove(r, c+2) == 0) {
                     move(r, c+2, PHASE_TWO);
                 }
             }
@@ -434,26 +437,30 @@ public class ChineseCheckersAI {
      * @param int c
      * @return boolean
      */
-    private boolean isLegalMove(int r, int c){
-        if (r < 9 || r > 25 || c<1 || c>17) {
+    private int isLegalMove(int r, int c){
+        boolean isLegal = false;
+    	if (r < 9 || r > 25 || c<1 || c>17) {
             //Out of bounds
-            return false;
+    		return -1;
         } else if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
             //Visited before or has a piece on it
-            return false;
+            return gameBoard[r][c];
         } else if (r < 13) {
-            return (c >= 5 && c <= r - 4);
+            isLegal = (c >= 5 && c <= r - 4);
         } else if (r < 17) {
-            return (c <= 13 && c >= (r + 1) - 13);
+        	isLegal = (c <= 13 && c >= (r + 1) - 13);
         } else if (r < 21) {
-            return (c >= 5 && c <= (r - 4));
+        	isLegal = (c >= 5 && c <= (r - 4));
         } else if (r < 25) {
-            return (c <= 13 && c >= (r-12));
+        	isLegal = (c <= 13 && c >= (r-12));
         } else if (r ==25) {
-            return (c == 13);
-        } else {
-            return false;
+        	isLegal = (c == 13);
         }
+    	if (isLegal) {
+    		return 0;
+    	} else {
+    		return -1;
+    	}
     }
     
     /** isLegalEnd
@@ -561,6 +568,19 @@ public class ChineseCheckersAI {
         return (startDistance - endDistance);
     }
     
+     
+
+     //Checks best move after this move to find optimal move this turn
+     private int futureMove() {
+		return 0;
+    	 
+     //move();
+     //is legal move = to return out of bounds if 1
+    		 //return value of board
+     	
+     } 
+     
+     
     /** hardCodeEnd
      * Initializes the 10 spots that we end with
      */
@@ -588,3 +608,4 @@ public class ChineseCheckersAI {
         end[9][1] = 13;
     }
 }
+
