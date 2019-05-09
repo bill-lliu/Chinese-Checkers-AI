@@ -623,7 +623,7 @@ public class ChineseCheckersAI {
 		JPanel infoPanel;
 		BoardPanel boardPanel;
 		JScrollPane logPane;
-		JLabel turnCount;
+		JLabel stats;
 		JTextArea log;
 		int turn = 0;
 
@@ -634,7 +634,7 @@ public class ChineseCheckersAI {
 
 			infoPanel = new JPanel();
 			infoPanel.setLayout(new GridLayout(2, 1));
-			turnCount = new JLabel("Waiting for game start");
+			stats = new JLabel("Waiting for game start");
 			log = new JTextArea();
 			logPane = new JScrollPane(log);
 
@@ -642,7 +642,7 @@ public class ChineseCheckersAI {
 			DefaultCaret caret = (DefaultCaret) log.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-			infoPanel.add(turnCount);
+			infoPanel.add(stats);
 			infoPanel.add(logPane);
 			this.add(infoPanel);
 
@@ -659,7 +659,6 @@ public class ChineseCheckersAI {
 						try {
 							if (msg.indexOf("BOARD") >= 0) {
 								turn++;
-								turnCount.setText("Turn " + turn);
 								log.append("Turn " + turn + "\n");
 								log.append(msg + "\n");
 								String[] msgSplit = msg.split(" ");
@@ -668,6 +667,7 @@ public class ChineseCheckersAI {
 								log.append(moveSent + "\n");
 								output.println(moveSent);
 								output.flush();
+								updateStats();
 								boardPanel.repaint();
 							} else if (msg.indexOf("ERROR") >= 0) {
 								log.append(msg + "\n");
@@ -685,6 +685,13 @@ public class ChineseCheckersAI {
 			}
 		}
 
+		private void updateStats() {
+			stats.setText("<html>Turn " + turn + "<br/><br/>" +
+					"Distance: " + bestScore[0] + "<br/>" +
+					"Priority: " + bestScore[1] + "<br/>" +
+					"Distance to end: " + bestScore[2] + "<br/>" +
+					"Distance from center: " + bestScore[3] + "</html>");
+		}
 	}
 
 	class BoardPanel extends JPanel {
@@ -716,13 +723,18 @@ public class ChineseCheckersAI {
 					g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 				}
 				//Draw moves
-				g.setColor(Color.GREEN);
+				g.setColor(Color.CYAN);
 				for (int i = 0; i < bestMoveList.size(); i++) {
 					Integer[] move = bestMoveList.get(i);
 					int r = move[0];
 					int c = move[1];
+					//Highlight final move with blue
 					if (i == bestMoveList.size() - 1) {
 						g.setColor(Color.BLUE);
+					}
+					//Since the first move is highlighted cyan, switch to green
+					else if (i == 1) {
+						g.setColor(Color.GREEN);
 					}
 					g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 				}
@@ -741,6 +753,10 @@ public class ChineseCheckersAI {
 			}
 		}
 
+		/**
+		 * horizontalShift
+		 * Gets the horizontal shift for each row of the board
+		 */
 		private int horizontalShift(int r) {
 			return (int)(((13.0 - r) / 2) * xDisplacement);
 		}
