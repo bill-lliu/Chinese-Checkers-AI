@@ -608,4 +608,3 @@ public class ChineseCheckersAI {
         end[9][1] = 13;
     }
 }
-
