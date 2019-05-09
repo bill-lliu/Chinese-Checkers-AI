@@ -655,7 +655,6 @@ public class ChineseCheckersAI {
 			while (running) {
 				try {
 					if (input.ready()) { //check for an incoming message
-						this.turnCount.setText("Status: Moving");
 						String msg = readMessagesFromServer();
 						try {
 							if (msg.indexOf("BOARD") >= 0) {
@@ -694,34 +693,18 @@ public class ChineseCheckersAI {
 		int size = 13;
 		//17, 9
 		int center = 17;
-		//row, displacement
-		int[][] manualDisplacement = {
-				{1, 0},
-				{2, xDisplacement},
-				{3, xDisplacement / 2}
-
-		};
 
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 
-			//Draw the grid
-			g.setColor(Color.BLACK);
-			for (int r = 9; r <= 25; r++) {
-				for (int c = 1; c < 18; c++) {
-					if (validSpace(r, c)) {
-						g.drawOval(c * xDisplacement, r * yDisplacement, size, size);
-					}
-				}
-			}
 			try {
 				//Draw the pieces on the grid
 				g.setColor(Color.GRAY);
 				for (int r = 0; r < gameBoard.length; r++) {
 					for (int c = 0; c < gameBoard[r].length; c++) {
 						if (gameBoard[r][c] == 1) {
-							g.fillOval(c * xDisplacement, r * yDisplacement, size, size);
+							g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 						}
 					}
 				}
@@ -730,7 +713,7 @@ public class ChineseCheckersAI {
 				for (int i = 0; i < gamePieces.length; i++) {
 					int r = gamePieces[i][0];
 					int c = gamePieces[i][1];
-					g.fillOval(c * xDisplacement, r * yDisplacement, size, size);
+					g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 				}
 				//Draw moves
 				g.setColor(Color.GREEN);
@@ -741,12 +724,25 @@ public class ChineseCheckersAI {
 					if (i == bestMoveList.size() - 1) {
 						g.setColor(Color.BLUE);
 					}
-					g.fillOval(c * xDisplacement, r * yDisplacement, size, size);
+					g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 				}
 
 			} catch (NullPointerException e) {
 				//board not initialized yet
 			}
+			//Draw the grid outlines
+			g.setColor(Color.BLACK);
+			for (int r = 9; r <= 25; r++) {
+				for (int c = 1; c < 18; c++) {
+					if (validSpace(r, c)) {
+						g.drawOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
+					}
+				}
+			}
+		}
+
+		private int horizontalShift(int r) {
+			return (int)(((13.0 - r) / 2) * xDisplacement);
 		}
 
 		private boolean validSpace(int r, int c) {
