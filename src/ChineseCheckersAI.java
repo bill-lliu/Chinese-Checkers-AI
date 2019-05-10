@@ -57,13 +57,13 @@ public class ChineseCheckersAI {
 
 	//Moving + Scoring
 	private double[] bestScore;
-	private ArrayList<Integer[]> bestMoveList;
+	private ArrayList<Integer[]> moveList; //ArrayList of moves
+	private ArrayList<Integer[]> bestMoveList; //ArrayList of best moves
 	//Each Phase represents the actions that a piece can legally take
 	private final int PHASE_ONE = 0; //Can do whatever
 	private final int PHASE_TWO = 1; //Cannot move 1 space
 	private final int PHASE_THREE = 2; //Cannot move anymore
 	private String moveSent; //To the server
-	private ArrayList<Integer[]> moveList; //ArrayList of moves lol
 
 	//Main function
 	public static void main(String[] args) {
@@ -333,55 +333,55 @@ public class ChineseCheckersAI {
 		move[1] = c;
 		moveList.add(move);
 		if (phase == PHASE_ONE) {
-			if (isLegalMove(r - 1, c)) {
+			if (isLegalMove(r - 1, c) == 0) {
 				move(r - 1, c, PHASE_THREE);
 			}
-			if (isLegalMove(r - 1, c - 1)) {
+			if (isLegalMove(r - 1, c - 1) == 0) {
 				move(r - 1, c - 1, PHASE_THREE);
 			}
-			if (isLegalMove(r, c - 1)) {
+			if (isLegalMove(r, c - 1) == 0) {
 				move(r, c - 1, PHASE_THREE);
 			}
-			if (isLegalMove(r + 1, c)) {
+			if (isLegalMove(r + 1, c) == 0) {
 				move(r + 1, c, PHASE_THREE);
 			}
-			if (isLegalMove(r + 1, c + 1)) {
+			if (isLegalMove(r + 1, c + 1) == 0) {
 				move(r + 1, c + 1, PHASE_THREE);
 			}
-			if (isLegalMove(r, c + 1)) {
+			if (isLegalMove(r, c + 1) == 0) {
 				move(r, c + 1, PHASE_THREE);
 			}
 		}
 		if (phase == PHASE_TWO || phase == PHASE_ONE) {
 			//If it is an illegal move 1 adjacent, then it is either out of bounds or has a piece there
 			//Check the jump piece if it is a legal move because we will never jump over an out of bounds spot back in bounds
-			if (!isLegalMove(r - 1, c)) {
-				if (isLegalMove(r - 2, c)) {
+			if (isLegalMove(r - 1, c) != 0) {
+				if (isLegalMove(r - 2, c) == 0) {
 					move(r - 2, c, PHASE_TWO);
 				}
 			}
-			if (!isLegalMove(r - 1, c - 1)) {
-				if (isLegalMove(r - 2, c - 2)) {
+			if (isLegalMove(r - 1, c - 1) != 0) {
+				if (isLegalMove(r - 2, c - 2) == 0) {
 					move(r - 2, c - 2, PHASE_TWO);
 				}
 			}
-			if (!isLegalMove(r, c - 1)) {
-				if (isLegalMove(r, c - 2)) {
+			if (isLegalMove(r, c - 1) != 0) {
+				if (isLegalMove(r, c - 2) == 0) {
 					move(r, c - 2, PHASE_TWO);
 				}
 			}
-			if (!isLegalMove(r + 1, c)) {
-				if (isLegalMove(r + 2, c)) {
+			if (isLegalMove(r + 1, c) != 0) {
+				if (isLegalMove(r + 2, c) == 0) {
 					move(r + 2, c, PHASE_TWO);
 				}
 			}
-			if (!isLegalMove(r + 1, c + 1)) {
-				if (isLegalMove(r + 2, c + 2)) {
+			if (isLegalMove(r + 1, c + 1) != 0) {
+				if (isLegalMove(r + 2, c + 2) == 0) {
 					move(r + 2, c + 2, PHASE_TWO);
 				}
 			}
-			if (!isLegalMove(r, c + 1)) {
-				if (isLegalMove(r, c + 2)) {
+			if (isLegalMove(r, c + 1) != 0) {
+				if (isLegalMove(r, c + 2) == 0) {
 					move(r, c + 2, PHASE_TWO);
 				}
 			}
@@ -416,6 +416,29 @@ public class ChineseCheckersAI {
 				bestScore[3] = distanceFromCenter;
 			}
 		}
+		//Clear piece lag (algorithm strategy)
+		if (bestScore[0] < 5
+				&& gameBoard[9][5] == 0
+				&& gameBoard[10][5] == 1
+				&& gameBoard[10][6] == 1
+				&& gameBoard[11][5] == 0
+				&& gameBoard[11][6] == 0
+				&& gameBoard[11][7] == 0
+				&& gameBoard[12][6] == 0
+				&& gameBoard[12][7] == 0
+				) {
+			//Overrides the best move with this move when optimal
+			bestMoveList.clear();
+			Integer[] lagMoveStart = new Integer[]{10, 5};
+			Integer[] lagMoveEnd = new Integer[]{11, 6};
+			bestMoveList.add(lagMoveStart);
+			bestMoveList.add(lagMoveEnd);
+			bestScore[0] = 1;
+			bestScore[1] = 1;
+			bestScore[2] = 1;
+			bestScore[3] = 1;
+		}
+		//resets the board for the next turn
 		if (gameBoard[r][c] != 1) {
 			gameBoard[r][c] = 0;
 		}
@@ -432,28 +455,32 @@ public class ChineseCheckersAI {
 	 *
 	 * @param r
 	 * @param c
-	 * @return boolean
+	 * @return int //-1 is nothing, 0 is empty space, 1 or 2 is occupied space
 	 */
-	private boolean isLegalMove(int r, int c) {
+	private int isLegalMove(int r, int c) {
+		boolean isLegal = false;
 		if (r < 9 || r > 25 || c < 1 || c > 17) {
 			//Out of bounds
-			return false;
+			return -1;
 		} else if (gameBoard[r][c] == 1 || gameBoard[r][c] == 2) {
 			//Visited before or has a piece on it
-			return false;
+			return gameBoard[r][c];
 		} else if (r < 13) {
-			return (c >= 5 && c <= r - 4);
+			isLegal = (c >= 5 && c <= r - 4);
 		} else if (r < 17) {
-			return (c <= 13 && c >= (r + 1) - 13);
+			isLegal = (c <= 13 && c >= (r + 1) - 13);
 		} else if (r < 22) {
-			return (c >= 5 && c <= (r - 4));
+			isLegal = (c >= 5 && c <= (r - 4));
 		} else if (r < 25) {
-			return (c <= 13 && c >= (r - 12));
+			isLegal = (c <= 13 && c >= (r - 12));
 		} else if (r == 25) {
-			return (c == 13);
-		} else {
-			return false;
+			isLegal = (c == 13);
 		}
+		if (isLegal) {
+    		return 0;
+    	} else {
+    		return -1;
+    	}
 	}
 
 	/**
@@ -524,15 +551,18 @@ public class ChineseCheckersAI {
 
 	/**
 	 * distance
-	 * Takes in the start and end position and returns the pythagorean distance
+	 * Takes in the start and end position and returns the raw hexagonal distance
 	 *
 	 * @param start Integer array of size 2 containing the row and column of the start piece
 	 * @param end Integer array of size 2 containing the row and column of the end piece
-	 * @return distance Integer of the distance from the first piece fo the second piece.
+	 * @return distance Integer of the distance from the first piece to the second piece
 	 */
 	private double distance(int[] start, int[] end) {
 		double distance = 0;
-		distance = Math.sqrt(Math.pow((double) (start[0] - end[0]), 2) + Math.pow((double) (start[1] - end[1]), 2));
+		distance += Math.abs(start[1] - end[1]); //add column distance
+		distance += Math.abs(start[1] + start[0] - end[1] - end[0]); //add row+column distance
+		distance += Math.abs(start[0] - end[0]); //add row distance
+		distance = distance/2; //differences between the two
 		return distance;
 	}
 
