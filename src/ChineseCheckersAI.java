@@ -63,9 +63,6 @@ public class ChineseCheckersAI {
 	private final int PHASE_ONE = 0; //Can do whatever
 	private final int PHASE_TWO = 1; //Cannot move 1 space
 	private final int PHASE_THREE = 2; //Cannot move anymore
-	private final int PHASE_FOUR = 3; // Checking future move, can do whatever
-	private final int PHASE_FIVE = 4; // Checking future move, cannot move 1 space (only jumps)
-	private final int PHASE_SIX = 2; //Cannot move anymore (same as phase three)
 	private String moveSent; //To the server
 
 	//Main function
