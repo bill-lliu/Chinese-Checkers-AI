@@ -31,6 +31,10 @@ import java.util.ArrayList;
 /**
  * ChineseCheckersAI
  * Networking class assignment
+ *
+ * @author Feng Guo
+ * @author Bill Liu
+ * @author Victor Lin
  */
 public class ChineseCheckersAI {
 	//GUI
@@ -66,8 +70,11 @@ public class ChineseCheckersAI {
 		ChineseCheckersAI chineseCheckersAI = new ChineseCheckersAI();
 	}
 
-	//Class constructor
-	ChineseCheckersAI() {
+	/**
+	 * ChineseCheckersAI
+	 * This constructor starts the AI.
+	 */
+	private ChineseCheckersAI() {
 		setUp();
 	}
 
@@ -87,7 +94,7 @@ public class ChineseCheckersAI {
 		//Initialize the start and end points
 		hardCodeEnd();
 
-		//Setting up startpanel
+		//Setting up start panel
 		startPanel = new JPanel();
 		startPanel.setVisible(true);
 		JLabel serverIPLabel = new JLabel("Enter the IP Address");
@@ -97,8 +104,10 @@ public class ChineseCheckersAI {
 		JButton okayButton = new JButton("Okay");
 		okayButton.addActionListener(actionEvent -> {
 			try {
+				//Get inputs
 				String ip = serverIPTextField.getText();
 				int port = Integer.parseInt(portTextField.getText());
+				//Try to connect to server
 				if (ip != null && !"".equals(ip)) {
 					connectToServer(ip, port);
 				} else {
@@ -129,8 +138,8 @@ public class ChineseCheckersAI {
 	 * connectToServer
 	 * Create and set up a new socket to connect to the server
 	 *
-	 * @param ip
-	 * @param port
+	 * @param ip String of the IP address of the server
+	 * @param port Integer of the port of the server
 	 */
 	private void connectToServer(String ip, int port) {
 		try {
@@ -145,10 +154,9 @@ public class ChineseCheckersAI {
 		}
 	}
 
-
 	/**
 	 * repaintFrame
-	 * Refreshes the display
+	 * Refreshes the connecting (main) frame
 	 */
 	private void repaintFrame() {
 		mainFrame.setVisible(true);
@@ -171,8 +179,10 @@ public class ChineseCheckersAI {
 		JTextField nameTextField = new JTextField(10);
 		JButton okayButton = new JButton("Okay");
 		okayButton.addActionListener(actionEvent -> {
+			//Get inputs
 			String room = roomTextField.getText();
 			String username = nameTextField.getText();
+			//Send room to server
 			output.println("JOINROOM " + room);
 			output.flush();
 			String msg;
@@ -181,6 +191,7 @@ public class ChineseCheckersAI {
 			} while (msg == null);
 			if (msg != null) {
 				if ("OK".equalsIgnoreCase(msg)) {
+					//Send name to server
 					output.println("CHOOSENAME " + username);
 					output.flush();
 					do {
@@ -188,10 +199,9 @@ public class ChineseCheckersAI {
 					} while (msg == null);
 					if (msg != null) {
 						if ("OK".equalsIgnoreCase((msg))) {
-							//we gucci here
+							//Start the game loop
 							Thread t = new Thread(new GameFrame(room, username));
 							t.start();
-							//runGameLoop();
 						} else {
 							System.out.println(msg);
 						}
@@ -222,12 +232,11 @@ public class ChineseCheckersAI {
 		repaintFrame();
 	}
 
-
 	/**
 	 * readMessageFromServer
 	 * Reads input from the server and returns it
 	 *
-	 * @return String
+	 * @return message String containing the message sent from the server
 	 */
 	private String readMessagesFromServer() {
 		try {
@@ -280,43 +289,6 @@ public class ChineseCheckersAI {
 		moveSent = s.toString();
 	}
 
-
-	/**
-	 * runGameLoop
-	 * Main game loop to continually wait for a message and responds
-	 */
-	private void runGameLoop() {
-		//This is where we do the looping waiting for stuff
-		while (running) {
-			try {
-				if (input.ready()) { //check for an incoming message
-					String msg = readMessagesFromServer();
-					try {
-						if (msg.indexOf("BOARD") >= 0) {
-							System.out.println(msg);
-							String[] msgSplit = msg.split(" ");
-							resetBoard(msgSplit);
-							play();
-							System.out.println(moveSent);
-							output.println(moveSent);
-							output.flush();
-						} else if (msg.indexOf("ERROR") >= 0) {
-							System.out.println(msg);
-						} else if (msg.indexOf("OK") >= 0) {
-							System.out.println("Move Successfully sent.");
-						}
-					} catch (NullPointerException e) {
-						System.out.println("Something broke");
-						e.printStackTrace();
-					}
-				}
-			} catch (IOException e) {
-				//Nothing happens hopefully
-			}
-		}
-	}
-
-
 	/**
 	 * resetBoard
 	 * Refresh the board after each play
@@ -324,15 +296,18 @@ public class ChineseCheckersAI {
 	 * @param msgSplit String array of the message from the server
 	 */
 	private void resetBoard(String[] msgSplit) {
+		//Reset positions of pieces
 		gameBoard = new int[30][30];
 		gamePieces = new int[10][2];
 		for (int i = 3; i < msgSplit.length; i++) {
+			//Get coordinates of pieces from string
 			String[] coords = msgSplit[i].split(",");
 			coords[0] = coords[0].substring(1);
 			coords[1] = coords[1].substring(0, coords[1].length() - 1);
 			int row = Integer.parseInt(coords[0]);
 			int column = Integer.parseInt(coords[1]);
 			gameBoard[row][column] = 1;
+			//Get our pieces
 			if (i < 13) {
 				gamePieces[i - 3][0] = row;
 				gamePieces[i - 3][1] = column;
@@ -345,9 +320,9 @@ public class ChineseCheckersAI {
 	 * move
 	 * Move function that also calls the score function after each move
 	 *
-	 * @param int r
-	 * @param int c
-	 * @param int phase The phase of the turn, explained in variable init
+	 * @param r Integer of the row of the piece to move
+	 * @param c Integer of the column of the piece to move
+	 * @param phase The phase of the turn, explained in variable init
 	 */
 	private void move(int r, int c, int phase) {
 		if (gameBoard[r][c] != 1) {
@@ -419,6 +394,7 @@ public class ChineseCheckersAI {
 			double distanceToEnd = score(moveList);
 			double distanceFromCenter = (double) distanceFromCenter((int) moveList.get(moveList.size() - 1)[0], (int) moveList.get(moveList.size() - 1)[1]);
 			boolean isBestScore = false;
+			//Check if this move is better
 			if (distance > bestScore[0]) {
 				isBestScore = true;
 			} else if (distance == bestScore[0] && priority < bestScore[1]) {
@@ -429,6 +405,7 @@ public class ChineseCheckersAI {
 				isBestScore = true;
 			}
 			if (isBestScore) {
+				//Make this move the new best move
 				bestMoveList.clear();
 				for (int i = 0; i < moveList.size(); i++) {
 					bestMoveList.add(moveList.get(i));
@@ -442,6 +419,7 @@ public class ChineseCheckersAI {
 		if (gameBoard[r][c] != 1) {
 			gameBoard[r][c] = 0;
 		}
+		//Remove the last move
 		moveList.remove(moveList.size() - 1);
 	}
 
@@ -452,8 +430,8 @@ public class ChineseCheckersAI {
 	 * isLegalMove
 	 * Returns true if it is not out of bounds or has a piece on the space already
 	 *
-	 * @param int r
-	 * @param int c
+	 * @param r
+	 * @param c
 	 * @return boolean
 	 */
 	private boolean isLegalMove(int r, int c) {
@@ -482,8 +460,8 @@ public class ChineseCheckersAI {
 	 * isLegalEnd
 	 * returns false if it is the end goal of another player that is not directly across from you
 	 *
-	 * @param int r
-	 * @param int c
+	 * @param r
+	 * @param c
 	 * @return boolean
 	 */
 	private boolean isLegalEnd(int r, int c) {
@@ -510,9 +488,9 @@ public class ChineseCheckersAI {
 	 * distanceFromCenter
 	 * Returns the distance from the center vertical column of the board (middle 3-4 spots)
 	 *
-	 * @param int r
-	 * @param int c
-	 * @return int
+	 * @param r Integer of the row of this piece.
+	 * @param c Integer of the column of this piece.
+	 * @return distance Integer of the distance of this piece from the center of the board.
 	 */
 	private int distanceFromCenter(int r, int c) {
 		if (r < 13 || r > 21) {
@@ -548,9 +526,9 @@ public class ChineseCheckersAI {
 	 * distance
 	 * Takes in the start and end position and returns the pythagorean distance
 	 *
-	 * @param int[] start
-	 * @param int[] end
-	 * @return double
+	 * @param start Integer array of size 2 containing the row and column of the start piece
+	 * @param end Integer array of size 2 containing the row and column of the end piece
+	 * @return distance Integer of the distance from the first piece fo the second piece.
 	 */
 	private double distance(int[] start, int[] end) {
 		double distance = 0;
@@ -562,8 +540,8 @@ public class ChineseCheckersAI {
 	 * score
 	 * Takes in an ArrayList of moves and returns the score of that sequence (displacement towards the end goal)
 	 *
-	 * @param ArrayList moves
-	 * @return double
+	 * @param moves ArrayList of Integer arrays containing the list of moves.
+	 * @return score Double of the score.
 	 */
 	private double score(ArrayList<Integer[]> moves) {
 		double distance = 0;
@@ -619,7 +597,11 @@ public class ChineseCheckersAI {
 		end[9][1] = 13;
 	}
 
-	class GameFrame extends JFrame implements Runnable {
+	/**
+	 * GameFrame
+	 * This class contains the game loop and the interface for the game display.
+	 */
+	private class GameFrame extends JFrame implements Runnable {
 		JPanel infoPanel;
 		BoardPanel boardPanel;
 		JScrollPane logPane;
@@ -627,8 +609,17 @@ public class ChineseCheckersAI {
 		JTextArea log;
 		int turn = 0;
 
+		/**
+		 * GameFrame
+		 * This constructor creates a new game window.
+		 * @param room Room name
+		 * @param name Username
+		 */
 		GameFrame(String room, String name) {
+			//Set titlebar to room and username
 			this.setTitle(name + " | Room: " + room);
+
+			//Window setup
 			this.setSize(1080, 540);
 			this.setLayout(new GridLayout(1, 2));
 
@@ -642,6 +633,7 @@ public class ChineseCheckersAI {
 			DefaultCaret caret = (DefaultCaret) log.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
+			//Add everything to panels
 			infoPanel.add(stats);
 			infoPanel.add(logPane);
 			this.add(infoPanel);
@@ -651,6 +643,10 @@ public class ChineseCheckersAI {
 			this.setVisible(true);
 		}
 
+		/**
+		 * run
+		 * This runs the game loop.
+		 */
 		public void run() {
 			while (running) {
 				try {
@@ -658,15 +654,22 @@ public class ChineseCheckersAI {
 						String msg = readMessagesFromServer();
 						try {
 							if (msg.indexOf("BOARD") >= 0) {
+								//Increase turn count
 								turn++;
+								//Add to log
 								log.append("Turn " + turn + "\n");
 								log.append(msg + "\n");
+								//Split message from server
 								String[] msgSplit = msg.split(" ");
+								//Game logic
 								resetBoard(msgSplit);
 								play();
+								//Write to log
 								log.append(moveSent + "\n");
+								//Send to server
 								output.println(moveSent);
 								output.flush();
+								//Update frame
 								updateStats();
 								boardPanel.repaint();
 							} else if (msg.indexOf("ERROR") >= 0) {
@@ -685,6 +688,10 @@ public class ChineseCheckersAI {
 			}
 		}
 
+		/**
+		 * updateStats
+		 * This method updates the statistics of the game.
+		 */
 		private void updateStats() {
 			stats.setText("<html>Turn " + turn + "<br/><br/>" +
 					"Distance: " + bestScore[0] + "<br/>" +
@@ -694,19 +701,25 @@ public class ChineseCheckersAI {
 		}
 	}
 
-	class BoardPanel extends JPanel {
+	/**
+	 * BoardPanel
+	 * This class represents a game board.
+	 */
+	private class BoardPanel extends JPanel {
 		int xDisplacement = 15;
 		int yDisplacement = 15;
 		int size = 13;
-		//17, 9
-		int center = 17;
 
+		/**
+		 * paintComponent
+		 * Draws on the panel
+		 */
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 
 			try {
-				//Draw the pieces on the grid
+				//Draw ALL pieces on the grid
 				g.setColor(Color.GRAY);
 				for (int r = 0; r < gameBoard.length; r++) {
 					for (int c = 0; c < gameBoard[r].length; c++) {
@@ -722,7 +735,7 @@ public class ChineseCheckersAI {
 					int c = gamePieces[i][1];
 					g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 				}
-				//Draw moves
+				//Draw our move
 				g.setColor(Color.CYAN);
 				for (int i = 0; i < bestMoveList.size(); i++) {
 					Integer[] move = bestMoveList.get(i);
@@ -738,7 +751,6 @@ public class ChineseCheckersAI {
 					}
 					g.fillOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 				}
-
 			} catch (NullPointerException e) {
 				//board not initialized yet
 			}
@@ -746,6 +758,7 @@ public class ChineseCheckersAI {
 			g.setColor(Color.BLACK);
 			for (int r = 9; r <= 25; r++) {
 				for (int c = 1; c < 18; c++) {
+					//If the space exists, draw
 					if (validSpace(r, c)) {
 						g.drawOval((c * xDisplacement) + horizontalShift(r), r * yDisplacement, size, size);
 					}
@@ -756,11 +769,20 @@ public class ChineseCheckersAI {
 		/**
 		 * horizontalShift
 		 * Gets the horizontal shift for each row of the board
+		 * @param r Integer of the row of the piece.
+		 * @return displacement Integer of the horizontal displacement for that row.
 		 */
 		private int horizontalShift(int r) {
 			return (int)(((13.0 - r) / 2) * xDisplacement);
 		}
 
+		/**
+		 * validSpace
+		 * Determines if the space specified exists on the board
+		 * @param r Integer of the row of the piece
+		 * @param c Integer of the column of the piece
+		 * @return valid True if valid, false if invalid
+		 */
 		private boolean validSpace(int r, int c) {
 			if (r < 9 || r > 25 || c < 1 || c > 17) {
 				return false;
