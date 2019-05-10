@@ -57,7 +57,8 @@ public class ChineseCheckersAI {
 
 	//Moving + Scoring
 	private double[] bestScore;
-	private ArrayList<Integer[]> bestMoveList;
+	private ArrayList<Integer[]> moveList; //ArrayList of moves
+	private ArrayList<Integer[]> bestMoveList; //ArrayList of best moves
 	//Each Phase represents the actions that a piece can legally take
 	private final int PHASE_ONE = 0; //Can do whatever
 	private final int PHASE_TWO = 1; //Cannot move 1 space
@@ -66,7 +67,6 @@ public class ChineseCheckersAI {
 	private final int PHASE_FIVE = 4; // Checking future move, cannot move 1 space (only jumps)
 	private final int PHASE_SIX = 2; //Cannot move anymore (same as phase three)
 	private String moveSent; //To the server
-	private ArrayList<Integer[]> moveList; //ArrayList of moves lol
 
 	//Main function
 	public static void main(String[] args) {
@@ -419,6 +419,29 @@ public class ChineseCheckersAI {
 				bestScore[3] = distanceFromCenter;
 			}
 		}
+		//Clear piece lag (algorithm strategy)
+		if (bestScore[0] < 5
+				&& gameBoard[9][5] == 0
+				&& gameBoard[10][5] == 1
+				&& gameBoard[10][6] == 1
+				&& gameBoard[11][5] == 0
+				&& gameBoard[11][6] == 0
+				&& gameBoard[11][7] == 0
+				&& gameBoard[12][6] == 0
+				&& gameBoard[12][7] == 0
+				) {
+			//Overrides the best move with this move when optimal
+			bestMoveList.clear();
+			Integer[] lagMoveStart = new Integer[]{10, 5};
+			Integer[] lagMoveEnd = new Integer[]{11, 6};
+			bestMoveList.add(lagMoveStart);
+			bestMoveList.add(lagMoveEnd);
+			bestScore[0] = 1;
+			bestScore[1] = 1;
+			bestScore[2] = 1;
+			bestScore[3] = 1;
+		}
+		//resets the board for the next turn
 		if (gameBoard[r][c] != 1) {
 			gameBoard[r][c] = 0;
 		}
@@ -531,15 +554,18 @@ public class ChineseCheckersAI {
 
 	/**
 	 * distance
-	 * Takes in the start and end position and returns the pythagorean distance
+	 * Takes in the start and end position and returns the raw hexagonal distance
 	 *
 	 * @param start Integer array of size 2 containing the row and column of the start piece
 	 * @param end Integer array of size 2 containing the row and column of the end piece
-	 * @return distance Integer of the distance from the first piece fo the second piece.
+	 * @return distance Integer of the distance from the first piece to the second piece
 	 */
 	private double distance(int[] start, int[] end) {
 		double distance = 0;
-		distance = Math.sqrt(Math.pow((double) (start[0] - end[0]), 2) + Math.pow((double) (start[1] - end[1]), 2));
+		distance += Math.abs(start[1] - end[1]); //add column distance
+		distance += Math.abs(start[1] + start[0] - end[1] - end[0]); //add row+column distance
+		distance += Math.abs(start[0] - end[0]); //add row distance
+		distance = distance/2; //differences between the two
 		return distance;
 	}
 
