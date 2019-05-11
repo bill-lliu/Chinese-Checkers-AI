@@ -5,10 +5,11 @@
  */
 
 //imports
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,7 +47,7 @@ public class ChineseCheckersAI {
     private Socket mySocket; //socket for connection
     private BufferedReader input; //reader for network stream
     private PrintWriter output;  //printwriter for network output
-
+    private Thread t;
     private boolean running = true; //thread status via boolean
 
     //Game portions
@@ -59,6 +60,7 @@ public class ChineseCheckersAI {
     private double[] bestScore;
     private ArrayList<Integer[]> moveList; //ArrayList of moves
     private ArrayList<Integer[]> bestMoveList; //ArrayList of best moves
+
     //Each Phase represents the actions that a piece can legally take
     private final int PHASE_ONE = 0; //Can do whatever
     private final int PHASE_TWO = 1; //Cannot move 1 space
@@ -123,6 +125,23 @@ public class ChineseCheckersAI {
             connectToServer("localhost", 6666);
         });
 
+        //Called when closing the window (Stop the program)
+        mainFrame.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                try { //Close inputs/outputs/socket
+                    input.close();
+                    output.close();
+                    mySocket.close();
+                } catch (IOException ex) {
+                    System.out.println("Failed to close socket");
+                }
+                //Exit program
+                System.exit(0);
+            }
+        });
+
         //Add everything to the panel + frame
         startPanel.add(serverIPLabel);
         startPanel.add(serverIPTextField);
@@ -138,7 +157,7 @@ public class ChineseCheckersAI {
      * connectToServer
      * Create and set up a new socket to connect to the server
      *
-     * @param ip String of the IP address of the server
+     * @param ip   String of the IP address of the server
      * @param port Integer of the port of the server
      */
     private void connectToServer(String ip, int port) {
@@ -200,7 +219,7 @@ public class ChineseCheckersAI {
                     if (msg != null) {
                         if ("OK".equalsIgnoreCase((msg))) {
                             //Start the game loop
-                            Thread t = new Thread(new GameFrame(room, username));
+                            t = new Thread(new GameFrame(room, username));
                             t.start();
                         } else {
                             System.out.println(msg);
@@ -252,16 +271,6 @@ public class ChineseCheckersAI {
             e.printStackTrace();
             return null;
         }
-        //}
-        //We'll have to move this later
-//  try {  //after leaving the main loop we need to close all the sockets
-//   input.close();
-//   output.close();
-//   mySocket.close();
-//  } catch (Exception e) {
-//   System.out.println("Failed to close socket");
-//  }
-
     }
 
 
@@ -320,8 +329,8 @@ public class ChineseCheckersAI {
      * move
      * Move function that also calls the score function after each move
      *
-     * @param r Integer of the row of the piece to move
-     * @param c Integer of the column of the piece to move
+     * @param r     Integer of the row of the piece to move
+     * @param c     Integer of the column of the piece to move
      * @param phase The phase of the turn, explained in variable init
      */
     private void move(int r, int c, int phase) {
@@ -426,7 +435,7 @@ public class ChineseCheckersAI {
                 && gameBoard[11][7] == 0
                 && gameBoard[12][6] == 0
                 && gameBoard[12][7] == 0
-           ) {
+        ) {
             //Overrides the best move with this move when optimal
             bestMoveList.clear();
             Integer[] lagMoveStart = new Integer[]{10, 5};
@@ -554,7 +563,7 @@ public class ChineseCheckersAI {
      * Takes in the start and end position and returns the raw hexagonal distance
      *
      * @param start Integer array of size 2 containing the row and column of the start piece
-     * @param end Integer array of size 2 containing the row and column of the end piece
+     * @param end   Integer array of size 2 containing the row and column of the end piece
      * @return distance Integer of the distance from the first piece to the second piece
      */
     private double distance(int[] start, int[] end) {
@@ -562,7 +571,7 @@ public class ChineseCheckersAI {
         distance += Math.abs(start[1] - end[1]); //add column distance
         distance += Math.abs(start[1] + start[0] - end[1] - end[0]); //add row+column distance
         distance += Math.abs(start[0] - end[0]); //add row distance
-        distance = distance/2; //differences between the two
+        distance = distance / 2; //differences between the two
         return distance;
     }
 
@@ -642,6 +651,7 @@ public class ChineseCheckersAI {
         /**
          * GameFrame
          * This constructor creates a new game window.
+         *
          * @param room Room name
          * @param name Username
          */
@@ -724,10 +734,10 @@ public class ChineseCheckersAI {
          */
         private void updateStats() {
             stats.setText("<html>Turn " + turn + "<br/><br/>" +
-                          "Distance: " + bestScore[0] + "<br/>" +
-                          "Priority: " + bestScore[1] + "<br/>" +
-                          "Distance to end: " + bestScore[2] + "<br/>" +
-                          "Distance from center: " + bestScore[3] + "</html>");
+                    "Distance: " + bestScore[0] + "<br/>" +
+                    "Priority: " + bestScore[1] + "<br/>" +
+                    "Distance to end: " + bestScore[2] + "<br/>" +
+                    "Distance from center: " + bestScore[3] + "</html>");
         }
     }
 
@@ -799,16 +809,18 @@ public class ChineseCheckersAI {
         /**
          * horizontalShift
          * Gets the horizontal shift for each row of the board
+         *
          * @param r Integer of the row of the piece.
          * @return displacement Integer of the horizontal displacement for that row.
          */
         private int horizontalShift(int r) {
-            return (int)(((13.0 - r) / 2) * xDisplacement);
+            return (int) (((13.0 - r) / 2) * xDisplacement);
         }
 
         /**
          * validSpace
          * Determines if the space specified exists on the board
+         *
          * @param r Integer of the row of the piece
          * @param c Integer of the column of the piece
          * @return valid True if valid, false if invalid
